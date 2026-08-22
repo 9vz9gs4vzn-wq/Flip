@@ -50,9 +50,14 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .target[data-colour="yellow"] svg *{stroke:#ffd84d}
 
 
-#game.shapeMode #arena{border-color:#63ef8a;box-shadow:inset 0 0 44px #20d96855,0 0 18px #20d96888}
-#game.shapeMode #rule{color:#8dffab;text-shadow:0 0 12px #20d96855}
-#game.shapeMode #timerBar{background:#8dffab}
+#game.decoyMode #arena{border-color:#63ef8a;box-shadow:inset 0 0 44px #20d96855,0 0 18px #20d96888}
+#game.decoyMode #rule{color:#8dffab;text-shadow:0 0 12px #20d96855}
+#game.decoyMode #timerBar{background:#8dffab}
+#decoyIntro{position:absolute;inset:0;z-index:27;background:#001b09f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
+#decoyIntro h3{font-size:11vw;margin:0 0 16px;color:#8dffab;letter-spacing:.08em}
+#decoyIntro p{font-size:18px;line-height:1.45;margin:4px 0}
+#decoyIntro .example{font-size:21px;line-height:1.6;margin-top:12px}
+#decoyIntro.hide{display:none!important}
 #game.colourMode{background:#071018}
 #game.colourMode #arena{border-color:#63d4ff;box-shadow:inset 0 0 44px #20bfff55,0 0 18px #20bfff88}
 #game.colourMode #rule{color:#69c7ff;text-shadow:0 0 14px #008cff66}
@@ -92,7 +97,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">2.0 • GREEN SHAPE CUE</div>
+<div class="sub">2.1 • GREEN DECOY MODE</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -116,6 +121,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 <div id="flash"></div>
 <div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="example">● → ✕ CIRCLE<br>● → ✓ ANY OTHER TARGET</div></div>
 <div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="example">RED ● → ✓ RED TARGET<br>Even if the target is a different shape.</div></div>
+<div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="example">🟢 GREEN = USE A DECOY</div></div>
 </section>
 
 <section id="over" class="hide">
@@ -135,7 +141,7 @@ let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
 let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match',mainSpawn=null;
 let targetMap=['circle','square','triangle','star'];
 let colourMap=['red','blue','green','yellow'];
-let reverseSeen=false,colourSeen=false,paused=false,memoryHideOnTouch=false;
+let reverseSeen=false,colourSeen=false,decoySeen=false,paused=false,memoryHideOnTouch=false;
 
 const shapes=[
  {name:'circle',label:'●'},
@@ -185,10 +191,12 @@ function shuffleTargets(){
 function chooseMode(){
  if(score<4) return 'match';
  const r=Math.random();
- const colourChance = score<9 ? 0 : Math.min(.34,.16+(score-9)*.009);
- if(score>=14 && r<.18) return 'reverse';
- if(score>=9 && r<.18+colourChance) return 'colour';
- if(score>=7 && r<.18+colourChance+.20) return 'memory';
+ const colourChance = score<9 ? 0 : Math.min(.30,.14+(score-9)*.008);
+ const decoyChance = score<12 ? 0 : Math.min(.20,.08+(score-12)*.006);
+ if(score>=14 && r<.17) return 'reverse';
+ if(score>=9 && r<.17+colourChance) return 'colour';
+ if(score>=12 && r<.17+colourChance+decoyChance) return 'decoy';
+ if(score>=7 && r<.17+colourChance+decoyChance+.18) return 'memory';
  return 'match';
 }
 function randomPos(avoidMain=false){
@@ -262,7 +270,11 @@ function makePiece(shape,decoy=false,forcedColour=null){
  active.push(obj);
 
  el.addEventListener('pointerdown',e=>{
-   if(decoy){ fail('You grabbed a decoy.'); return; }
+   if(mode==='decoy'){
+     if(!decoy){ fail('Green means use a DECOY.'); return; }
+   }else if(decoy){
+     fail('You grabbed a decoy.'); return;
+   }
    if(mode==='memory' && memoryHideOnTouch){
      memoryHideOnTouch=false;
      document.querySelectorAll('.target').forEach(t=>t.classList.add('hiddenLabel'));
@@ -306,6 +318,10 @@ function checkDrop(obj){
  }else if(mode==='colour'){
    const colourId=targetIdForColour(obj.colour);
    if(chosen!==colourId){fail('Wrong colour target.');return;}
+   success();
+ }else if(mode==='decoy'){
+   if(!obj.decoy){fail('Green means use a DECOY.');return;}
+   if(chosen!==correctId){fail('Match the DECOY shape.');return;}
    success();
  }else{
    if(chosen!==correctId){fail('Wrong target.');return;}
@@ -359,17 +375,19 @@ function newRound(){
  mode=chooseMode();
  $('game').classList.toggle('reverseMode',mode==='reverse');
  $('game').classList.toggle('colourMode',mode==='colour');
- $('game').classList.toggle('shapeMode',mode==='match');
+ $('game').classList.toggle('decoyMode',mode==='decoy');
 
  if(score>=11 && Math.random()<.38) shuffleTargets();
 
  document.querySelectorAll('.target').forEach(t=>t.classList.remove('hiddenLabel'));
  if(mode==='match'){
-   rule.textContent='MATCH SHAPE';
+   rule.textContent='MATCH THE SHAPE';
  }else if(mode==='reverse'){
    rule.textContent=reverseSeen?'REVERSE!':'NEW RULE: REVERSE!';
  }else if(mode==='colour'){
    rule.textContent=colourSeen?'MATCH COLOUR':'NEW RULE: MATCH COLOUR';
+ }else if(mode==='decoy'){
+   rule.textContent=decoySeen?'USE A DECOY':'NEW RULE: DECOY';
  }else{
    memoryHideOnTouch=true;
    rule.textContent='MEMORISE THE TARGETS';
@@ -387,23 +405,30 @@ function newRound(){
  }
  makePiece(main,false,mainColour);
 
+ if(mode==='decoy'){
+   let d1=shapes[Math.floor(Math.random()*shapes.length)];
+   let d2=shapes[Math.floor(Math.random()*shapes.length)];
+   makePiece(d1,true);
+   makePiece(d2,true);
+ }
+
  // Decoys become more frequent and more numerous as the score climbs.
  // ~25% chance at score 8, ~55% at 20, ~80% at 30+, plus extra decoys later.
- if(score>=6){
+ if(mode!=='decoy' && score>=6){
    const chance1=Math.min(.84,.28+(score-6)*.027);
    if(Math.random()<chance1){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
    }
  }
- if(score>=15){
+ if(mode!=='decoy' && score>=15){
    const chance2=Math.min(.70,.12+(score-15)*.023);
    if(Math.random()<chance2){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
    }
  }
- if(score>=28){
+ if(mode!=='decoy' && score>=28){
    const chance3=Math.min(.50,.08+(score-28)*.019);
    if(Math.random()<chance3){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
@@ -431,6 +456,10 @@ function newRound(){
    colourSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('colourIntro').classList.remove('hide');
    setTimeout(()=>{$('colourIntro').classList.add('hide');beginTimedRound()},2000);
+ }else if(mode==='decoy'&&!decoySeen){
+   decoySeen=true; paused=true; timerBar.style.transform='scaleX(1)';
+   $('decoyIntro').classList.remove('hide');
+   setTimeout(()=>{$('decoyIntro').classList.add('hide');beginTimedRound()},2000);
  }else beginTimedRound();
  if(score>=10 && Math.random()<.18) flashIt('glitch');
 }
@@ -438,7 +467,7 @@ function startGame(){
  $('menu').classList.add('hide');
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
- score=0;mult=1;reverseSeen=false;colourSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
+ score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
  for(let i=0;i<4;i++) renderTarget($('t'+i),targetMap[i],colourMap[i]);
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
  newRound();
