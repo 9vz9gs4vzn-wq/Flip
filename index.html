@@ -21,7 +21,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #timerWrap{position:absolute;top:102px;left:8%;right:8%;height:5px;background:#222;border-radius:6px;overflow:hidden;z-index:8}
 #timerBar{height:100%;width:100%;background:#ddd;transform-origin:left center}
 #arena{position:absolute;left:5%;right:5%;top:19%;bottom:8%;border:1px solid #2c2c2c;border-radius:18px;overflow:hidden}
-.target{position:absolute;width:29%;height:26%;border:2px dashed #444;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#888;font-size:10px;transition:all .18s}
+.target{position:absolute;width:29%;height:26%;border:2px dashed #444;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:38px;transition:all .18s}
 #t0{left:3%;top:4%}#t1{right:3%;top:4%}#t2{left:3%;bottom:4%}#t3{right:3%;bottom:4%}
 .target.hiddenLabel{color:transparent}
 .target.flash{border-color:#aaa;transform:scale(1.04)}
@@ -53,7 +53,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">0.4 • MEMORY ON TOUCH</div>
+<div class="sub">0.5 • SHAPE TARGETS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -68,10 +68,10 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 <div id="rule">MATCH THE SHAPE</div>
 <div id="timerWrap"><div id="timerBar"></div></div>
 <div id="arena">
-<div class="target" id="t0">CIRCLE</div>
-<div class="target" id="t1">SQUARE</div>
-<div class="target" id="t2">TRIANGLE</div>
-<div class="target" id="t3">STAR</div>
+<div class="target" id="t0">●</div>
+<div class="target" id="t1">■</div>
+<div class="target" id="t2">▲</div>
+<div class="target" id="t3">★</div>
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
@@ -106,6 +106,7 @@ const shapes=[
 $('best').textContent='BEST: '+best;
 $('best2').textContent=best;
 
+function symbolFor(shape){return shape==='circle'?'●':shape==='square'?'■':shape==='triangle'?'▲':'★';}
 function targetIdFor(shape){
  const idx=targetMap.indexOf(shape);
  return 't'+idx;
@@ -118,7 +119,7 @@ function shuffleTargets(){
  targetMap.sort(()=>Math.random()-.5);
  for(let i=0;i<4;i++){
    const t=$('t'+i);
-   t.textContent=targetMap[i].toUpperCase();
+   t.textContent=symbolFor(targetMap[i]);
    t.classList.add('flash');
    setTimeout(()=>t.classList.remove('flash'),180);
  }
@@ -281,7 +282,7 @@ function startGame(){
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
  score=0;mult=1;reverseSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];
- for(let i=0;i<4;i++) $('t'+i).textContent=targetMap[i].toUpperCase();
+ for(let i=0;i<4;i++) $('t'+i).textContent=symbolFor(targetMap[i]);
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
  newRound();
 }
