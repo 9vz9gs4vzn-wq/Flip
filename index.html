@@ -678,7 +678,7 @@ body.tutorialOpen{overflow:hidden!important}
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">4.1 • ONE-PIXEL EAGLE-EYE LOCK</div>
+<div class="sub">4.3 • SIX MEANS SIX</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -930,18 +930,32 @@ function shuffleTargets(){
 }
 function activeShapes(){return shapes.slice(0,activeShapeCount);}
 function updateShapeCount(){
- const wanted=score>=30?6:score>=15?5:4;
- if(wanted===activeShapeCount)return;
- activeShapeCount=wanted;
- if(wanted===5){
-   targetMap.push('diamond'); colourMap.push('purple');
-   $('t4').classList.remove('hide'); renderTarget($('t4'),'diamond','purple');
-   rule.textContent='NEW SHAPE: DIAMOND';
- }else if(wanted===6){
-   targetMap.push('hexagon'); colourMap.push('orange');
-   $('t5').classList.remove('hide'); renderTarget($('t5'),'hexagon','orange');
-   rule.textContent='NEW SHAPE: HEXAGON';
- }
+  const wanted=score>=30?6:score>=15?5:4;
+  const previous=activeShapeCount;
+  activeShapeCount=wanted;
+
+  const allShapes=['circle','square','triangle','star','diamond','hexagon'];
+  const allColours=['red','blue','green','yellow','purple','orange'];
+
+  // Keep the current shuffled order, then append newly unlocked shapes once.
+  const current=targetMap.filter(x=>allShapes.includes(x));
+  for(let i=0;i<wanted;i++){
+    const shape=allShapes[i];
+    if(!current.includes(shape)) current.push(shape);
+  }
+  targetMap=current.slice(0,wanted);
+  colourMap=allColours.slice(0,wanted);
+
+  // Re-assert visibility every round so unlocked targets can never stay hidden.
+  $('t4').classList.toggle('hide',wanted<5);
+  $('t5').classList.toggle('hide',wanted<6);
+
+  for(let i=0;i<wanted;i++){
+    renderTarget($('t'+i),targetMap[i],colourMap[i]);
+  }
+
+  if(previous<5 && wanted>=5) rule.textContent='NEW SHAPE: DIAMOND';
+  if(previous<6 && wanted>=6) rule.textContent='NEW SHAPE: HEXAGON';
 }
 function chooseMode(){
  if(score<4) return 'match';
