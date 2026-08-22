@@ -425,6 +425,30 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   font-size:22px;
   font-weight:900;
 }
+
+.stateTutorial .noTouchDemo{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  color:#ffe45f;
+  text-shadow:0 0 14px #ffe45f88;
+}
+.stateTutorial .noTouchHand{
+  font-size:64px;
+  line-height:1;
+  filter:drop-shadow(0 0 8px #ffe45f66);
+}
+.stateTutorial .noTouchWords{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.06em;
+  line-height:1.05;
+  text-align:left;
+}
+
 .stateTutorial .animCaption{
   text-align:center;
   font-size:12px;
@@ -437,13 +461,13 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .animReverse{animation:animReverse 3.0s ease-in-out infinite}
 @keyframes animReverse{0%,12%{left:36px}66%,84%{left:calc(100% - 76px)}100%{left:36px}}
 .animDecoy{animation:animDecoy 3.0s ease-in-out infinite}
-@keyframes animDecoy{0%,12%{left:92px}66%,84%{left:calc(100% - 76px)}100%{left:92px}}
+@keyframes animDecoy{0%,12%{left:92px}66%,84%{left:calc(100% - 75px)}100%{left:92px}}
 .animColour{animation:animColour 3.0s ease-in-out infinite}
 @keyframes animColour{0%,12%{left:36px}66%,84%{left:calc(100% - 76px)}100%{left:36px}}
 .animFingerReverse{animation:animFingerReverse 3.0s ease-in-out infinite}
 @keyframes animFingerReverse{0%,12%{left:46px;top:84px}66%,84%{left:calc(100% - 66px);top:84px}100%{left:46px;top:84px}}
 .animFingerDecoy{animation:animFingerDecoy 3.0s ease-in-out infinite}
-@keyframes animFingerDecoy{0%,12%{left:102px;top:84px}66%,84%{left:calc(100% - 66px);top:84px}100%{left:102px;top:84px}}
+@keyframes animFingerDecoy{0%,12%{left:102px;top:84px}66%,84%{left:calc(100% - 65px);top:84px}100%{left:102px;top:84px}}
 .animFingerColour{animation:animFingerColour 3.0s ease-in-out infinite}
 @keyframes animFingerColour{0%,12%{left:46px;top:84px}66%,84%{left:calc(100% - 66px);top:84px}100%{left:46px;top:84px}}
 .animWaitFinger{animation:animWaitFinger 2.6s ease-in-out infinite}
@@ -464,7 +488,7 @@ body.tutorialOpen{overflow:hidden!important}
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">3.6 • CENTRED ANIMATION LANDINGS</div>
+<div class="sub">3.7 • FINAL STATE TUTORIALS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -497,8 +521,8 @@ body.tutorialOpen{overflow:hidden!important}
     <div class="compare">
       <div class="panel"><div class="panelTitle bad">DON'T DO THIS</div>
         <div class="demoStage">
-          <div class="solidPiece" style="left:36px;color:#ff4b55">★</div>
           <div class="targetMini one" style="color:#ff4b55"><svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg></div>
+          <div class="solidPiece" style="left:calc(100% - 118px);color:#ff4b55">★</div>
           <div class="badge bad">MATCH = WRONG</div>
         </div>
       </div>
@@ -540,14 +564,14 @@ body.tutorialOpen{overflow:hidden!important}
     <div class="compare">
       <div class="panel"><div class="panelTitle bad">DON'T FOLLOW THE SHAPE</div>
         <div class="demoStage">
-          <div class="solidPiece" style="left:36px;color:#ff4b55">●</div>
-          <div class="targetMini circle one" style="color:#63d4ff"></div>
+          <div class="solidPiece" style="left:36px;color:#ff4b55">★</div>
+          <div class="targetMini one" style="color:#63d4ff"><svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg></div>
           <div class="badge bad">SAME SHAPE = WRONG</div>
         </div>
       </div>
       <div class="panel"><div class="panelTitle good">MATCH THE COLOUR</div>
         <div class="demoStage">
-          <div class="solidPiece" style="left:36px;color:#ff4b55">●</div>
+          <div class="solidPiece" style="left:36px;color:#ff4b55">★</div>
           <div class="targetMini square two" style="color:#ff4b55"></div>
           <div class="badge good">SAME COLOUR = CORRECT</div>
         </div>
@@ -556,13 +580,13 @@ body.tutorialOpen{overflow:hidden!important}
 
     <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
       <div class="animStage">
-        <div class="animPiece animColour" style="color:#ff4b55">●</div>
-        <div class="animTarget circle" style="left:92px;color:#63d4ff"></div>
+        <div class="animPiece animColour" style="color:#ff4b55">★</div>
+        <div class="animTarget" style="left:92px;color:#63d4ff"><svg viewBox="0 0 52 52"><polygon points="26,3 32,18 48,18 35,29 40,47 26,37 12,47 17,29 4,18 20,18"/></svg></div>
         <div class="animTarget square" style="right:28px;color:#ff4b55"></div>
         <div class="animFinger animFingerColour">☝️</div>
         <div class="animCheck">✓</div>
       </div>
-      <div class="animCaption">The red circle ignores the blue circle target and moves to the red square target.</div>
+      <div class="animCaption">The red star ignores the blue star target and moves to the red square target.</div>
     </div>
 
     <div class="how"><div class="howTitle">HOW TO PLAY</div>
@@ -639,11 +663,12 @@ body.tutorialOpen{overflow:hidden!important}
 
     <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
       <div class="animStage">
-        <div class="animPiece" style="left:188px;color:#ffe45f">★</div>
-        <div class="animFinger animWaitFinger">☝️</div>
-        <div class="animCheck animWaitCheck">✓</div>
+        <div class="noTouchDemo">
+          <div class="noTouchHand">✋</div>
+          <div class="noTouchWords">DON'T TOUCH<br>THE SCREEN</div>
+        </div>
       </div>
-      <div class="animCaption">The finger approaches but does not touch. When the yellow timer finishes, the round completes automatically.</div>
+      <div class="animCaption">Do nothing. When the yellow timer finishes, the round completes automatically.</div>
     </div>
 
     <div class="how"><div class="howTitle">HOW TO PLAY</div>
