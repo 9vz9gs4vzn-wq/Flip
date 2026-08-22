@@ -57,7 +57,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">1.1 • ADAPTIVE DECOYS</div>
+<div class="sub">1.2 • FASTER RAMP</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -141,27 +141,46 @@ function shuffleTargets(){
  }
 }
 function chooseMode(){
- if(score<6) return 'match';
+ if(score<4) return 'match';
  const r=Math.random();
- if(score>=18 && r<.22) return 'reverse';
- if(score>=10 && r<.42) return 'memory';
+ if(score>=14 && r<.24) return 'reverse';
+ if(score>=7 && r<.44) return 'memory';
  return 'match';
 }
 function randomPos(avoidMain=false){
  const maxX=Math.max(20,arena.clientWidth-100);
  const maxY=Math.max(120,arena.clientHeight-110);
  let pos=null,tries=0;
+
+ function decoyPositionBlocked(p){
+   if(!avoidMain)return false;
+
+   // Keep decoys comfortably away from the real draggable piece.
+   if(mainSpawn &&
+      Math.abs(p.x-mainSpawn.x)<125 &&
+      Math.abs(p.y-mainSpawn.y)<125) return true;
+
+   // The candidate decoy is 68x68. Keep its whole box clear of all
+   // visible targets plus a small invisible margin.
+   const ar=arena.getBoundingClientRect();
+   const left=p.x, top=p.y, right=p.x+68, bottom=p.y+68;
+   const margin=10;
+   for(let i=0;i<4;i++){
+     const r=$('t'+i).getBoundingClientRect();
+     const tl=r.left-ar.left-margin, tt=r.top-ar.top-margin;
+     const tr=r.right-ar.left+margin, tb=r.bottom-ar.top+margin;
+     if(right>tl && left<tr && bottom>tt && top<tb) return true;
+   }
+   return false;
+ }
+
  do{
    pos={
      x:20+Math.random()*Math.max(10,maxX-20),
      y:120+Math.random()*Math.max(10,maxY-120)
    };
    tries++;
- }while(
-   avoidMain && mainSpawn && tries<80 &&
-   Math.abs(pos.x-mainSpawn.x)<125 &&
-   Math.abs(pos.y-mainSpawn.y)<125
- );
+ }while(decoyPositionBlocked(pos) && tries<150);
  return pos;
 }
 function makePiece(shape,decoy=false){
@@ -229,11 +248,11 @@ function checkDrop(obj){
 }
 function updateDifficulty(){
  roundLimit = Math.max(900,
-  score<=10 ? 2600-score*35 :
-  score<=20 ? 2250-(score-10)*30 :
-  score<=30 ? 1950-(score-20)*25 :
-  score<=40 ? 1700-(score-30)*25 :
-  1450-(score-40)*18
+  score<=10 ? 2500-score*40 :
+  score<=20 ? 2100-(score-10)*32 :
+  score<=30 ? 1780-(score-20)*25 :
+  score<=40 ? 1530-(score-30)*22 :
+  1310-(score-40)*16
 );
  mult=1+Math.floor(score/5);
  $('mult').textContent=mult;
@@ -244,7 +263,7 @@ function success(){
  $('score').textContent=score;
  if(score>best){best=score;localStorage.setItem('flipBestHard',best);$('best2').textContent=best}
  flashIt('good');
- if(score===6||score===12||score===20) shuffleTargets();
+ if(score===5||score===10||score===16) shuffleTargets();
  setTimeout(newRound,100);
 }
 function flashIt(type){
@@ -274,7 +293,7 @@ function newRound(){
  mode=chooseMode();
  $('game').classList.toggle('reverseMode',mode==='reverse');
 
- if(score>=14 && Math.random()<.34) shuffleTargets();
+ if(score>=11 && Math.random()<.38) shuffleTargets();
 
  document.querySelectorAll('.target').forEach(t=>t.classList.remove('hiddenLabel'));
  if(mode==='match'){
@@ -291,22 +310,22 @@ function newRound(){
 
  // Decoys become more frequent and more numerous as the score climbs.
  // ~25% chance at score 8, ~55% at 20, ~80% at 30+, plus extra decoys later.
- if(score>=8){
-   const chance1=Math.min(.82,.25+(score-8)*.025);
+ if(score>=6){
+   const chance1=Math.min(.84,.28+(score-6)*.027);
    if(Math.random()<chance1){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
    }
  }
- if(score>=18){
-   const chance2=Math.min(.68,.12+(score-18)*.022);
+ if(score>=15){
+   const chance2=Math.min(.70,.12+(score-15)*.023);
    if(Math.random()<chance2){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
    }
  }
- if(score>=32){
-   const chance3=Math.min(.48,.08+(score-32)*.018);
+ if(score>=28){
+   const chance3=Math.min(.50,.08+(score-28)*.019);
    if(Math.random()<chance3){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
