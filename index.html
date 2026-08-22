@@ -50,6 +50,15 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .target[data-colour="yellow"] svg *{stroke:#ffd84d}
 
 
+
+#game.waitMode #arena{border-color:#ffe45f;box-shadow:inset 0 0 44px #ffd51f55,0 0 18px #ffd51f88}
+#game.waitMode #rule{color:#fff18a;text-shadow:0 0 12px #ffd51f66}
+#game.waitMode #timerBar{background:#fff18a}
+#waitIntro{position:absolute;inset:0;z-index:28;background:#211b00f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
+#waitIntro h3{font-size:10vw;margin:0 0 16px;color:#fff18a;letter-spacing:.06em}
+#waitIntro p{font-size:18px;line-height:1.45;margin:4px 0}
+#waitIntro .example{font-size:21px;line-height:1.6;margin-top:12px}
+#waitIntro.hide{display:none!important}
 #game.decoyMode #arena{border-color:#63ef8a;box-shadow:inset 0 0 44px #20d96855,0 0 18px #20d96888}
 #game.decoyMode #rule{color:#8dffab;text-shadow:0 0 12px #20d96855}
 #game.decoyMode #timerBar{background:#8dffab}
@@ -97,7 +106,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">2.1 • GREEN DECOY MODE</div>
+<div class="sub">2.2 • YELLOW DON'T TOUCH</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -122,6 +131,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 <div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="example">● → ✕ CIRCLE<br>● → ✓ ANY OTHER TARGET</div></div>
 <div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="example">RED ● → ✓ RED TARGET<br>Even if the target is a different shape.</div></div>
 <div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="example">🟢 GREEN = USE A DECOY</div></div>
+<div id="waitIntro" class="hide"><h3>DON'T TOUCH!</h3><p>Yellow means <b>hands off</b>.<br>Do not touch any shape until the yellow state ends.</p><div class="example">🟡 WAIT • RESIST • SURVIVE</div></div>
 </section>
 
 <section id="over" class="hide">
@@ -141,7 +151,7 @@ let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
 let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match',mainSpawn=null;
 let targetMap=['circle','square','triangle','star'];
 let colourMap=['red','blue','green','yellow'];
-let reverseSeen=false,colourSeen=false,decoySeen=false,paused=false,memoryHideOnTouch=false;
+let reverseSeen=false,colourSeen=false,decoySeen=false,waitSeen=false,paused=false,memoryHideOnTouch=false;
 
 const shapes=[
  {name:'circle',label:'●'},
@@ -191,12 +201,15 @@ function shuffleTargets(){
 function chooseMode(){
  if(score<4) return 'match';
  const r=Math.random();
- const colourChance = score<9 ? 0 : Math.min(.30,.14+(score-9)*.008);
- const decoyChance = score<12 ? 0 : Math.min(.20,.08+(score-12)*.006);
- if(score>=14 && r<.17) return 'reverse';
- if(score>=9 && r<.17+colourChance) return 'colour';
- if(score>=12 && r<.17+colourChance+decoyChance) return 'decoy';
- if(score>=7 && r<.17+colourChance+decoyChance+.18) return 'memory';
+ const colourChance = score<9 ? 0 : Math.min(.27,.13+(score-9)*.007);
+ const decoyChance = score<12 ? 0 : Math.min(.18,.07+(score-12)*.0055);
+ const waitChance = score<10 ? 0 : Math.min(.13,.06+(score-10)*.0035);
+ let edge=0;
+ if(score>=14){edge+=.16;if(r<edge)return 'reverse';}
+ if(score>=9){edge+=colourChance;if(r<edge)return 'colour';}
+ if(score>=12){edge+=decoyChance;if(r<edge)return 'decoy';}
+ if(score>=10){edge+=waitChance;if(r<edge)return 'wait';}
+ if(score>=7){edge+=.17;if(r<edge)return 'memory';}
  return 'match';
 }
 function randomPos(avoidMain=false){
@@ -270,6 +283,9 @@ function makePiece(shape,decoy=false,forcedColour=null){
  active.push(obj);
 
  el.addEventListener('pointerdown',e=>{
+   if(mode==='wait'){
+     fail("Yellow means DON'T TOUCH."); return;
+   }
    if(mode==='decoy'){
      if(!decoy){ fail('Green means use a DECOY.'); return; }
    }else if(decoy){
@@ -376,6 +392,7 @@ function newRound(){
  $('game').classList.toggle('reverseMode',mode==='reverse');
  $('game').classList.toggle('colourMode',mode==='colour');
  $('game').classList.toggle('decoyMode',mode==='decoy');
+ $('game').classList.toggle('waitMode',mode==='wait');
 
  if(score>=11 && Math.random()<.38) shuffleTargets();
 
@@ -388,6 +405,8 @@ function newRound(){
    rule.textContent=colourSeen?'MATCH COLOUR':'NEW RULE: MATCH COLOUR';
  }else if(mode==='decoy'){
    rule.textContent=decoySeen?'USE A DECOY':'NEW RULE: DECOY';
+ }else if(mode==='wait'){
+   rule.textContent=waitSeen?"DON'T TOUCH!":"NEW RULE: DON'T TOUCH!";
  }else{
    memoryHideOnTouch=true;
    rule.textContent='MEMORISE THE TARGETS';
@@ -414,21 +433,21 @@ function newRound(){
 
  // Decoys become more frequent and more numerous as the score climbs.
  // ~25% chance at score 8, ~55% at 20, ~80% at 30+, plus extra decoys later.
- if(mode!=='decoy' && score>=6){
+ if(mode!=='decoy' && mode!=='wait' && score>=6){
    const chance1=Math.min(.84,.28+(score-6)*.027);
    if(Math.random()<chance1){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
    }
  }
- if(mode!=='decoy' && score>=15){
+ if(mode!=='decoy' && mode!=='wait' && score>=15){
    const chance2=Math.min(.70,.12+(score-15)*.023);
    if(Math.random()<chance2){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
      makePiece(d,true);
    }
  }
- if(mode!=='decoy' && score>=28){
+ if(mode!=='decoy' && mode!=='wait' && score>=28){
    const chance3=Math.min(.50,.08+(score-28)*.019);
    if(Math.random()<chance3){
      let d=shapes[Math.floor(Math.random()*shapes.length)];
@@ -448,6 +467,19 @@ function newRound(){
    requestAnimationFrame(animateTimer);
    timer=setTimeout(()=>fail('Too slow.'),roundLimit);
  }
+ function beginWaitRound(){
+   paused=false;
+   const waitMs=Math.max(1150,1750-Math.min(score,50)*7)+Math.random()*250;
+   roundStart=performance.now();
+   function animateWait(){
+     if(tok!==roundToken||paused)return;
+     const p=Math.max(0,1-(performance.now()-roundStart)/waitMs);
+     timerBar.style.transform='scaleX('+p+')';
+     if(p>0)requestAnimationFrame(animateWait);
+   }
+   requestAnimationFrame(animateWait);
+   timer=setTimeout(()=>success(),waitMs);
+ }
  if(mode==='reverse'&&!reverseSeen){
    reverseSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('reverseIntro').classList.remove('hide');
@@ -460,14 +492,20 @@ function newRound(){
    decoySeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('decoyIntro').classList.remove('hide');
    setTimeout(()=>{$('decoyIntro').classList.add('hide');beginTimedRound()},2000);
+ }else if(mode==='wait'&&!waitSeen){
+   waitSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
+   $('waitIntro').classList.remove('hide');
+   setTimeout(()=>{$('waitIntro').classList.add('hide');beginWaitRound()},2000);
+ }else if(mode==='wait'){
+   beginWaitRound();
  }else beginTimedRound();
- if(score>=10 && Math.random()<.18) flashIt('glitch');
+ if(score>=10 && mode!=='wait' && Math.random()<.18) flashIt('glitch');
 }
 function startGame(){
  $('menu').classList.add('hide');
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
- score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
+ score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;waitSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
  for(let i=0;i<4;i++) renderTarget($('t'+i),targetMap[i],colourMap[i]);
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
  newRound();
