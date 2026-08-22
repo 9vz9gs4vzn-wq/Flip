@@ -26,7 +26,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .target svg *{fill:none;stroke:#8a8a8a;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.8 5.2}
 .target.hiddenLabel svg{opacity:0}
 .target.flash svg *{stroke:#bbb}
-#t0{left:3%;top:4%}#t1{right:3%;top:4%}#t2{left:3%;bottom:4%}#t3{right:3%;bottom:4%}
+#t0{left:3%;top:4%}#t1{right:3%;top:4%}#t2{left:3%;bottom:4%}#t3{right:3%;bottom:4%}#t4{left:35.5%;top:4%}#t5{left:35.5%;bottom:4%}
 .target.hiddenLabel::before{opacity:0}
 .target.flash{border-color:#aaa;transform:scale(1.04)}
 .piece{position:absolute;width:68px;height:68px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:none;z-index:10;touch-action:none;user-select:none}
@@ -43,6 +43,10 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .piece.blue{color:#4da6ff}
 .piece.green{color:#5ee083}
 .piece.yellow{color:#ffd84d}
+.piece.purple{color:#c47cff}
+.piece.orange{color:#ff9d4d}
+.target[data-colour="purple"] svg *{stroke:#c47cff}
+.target[data-colour="orange"] svg *{stroke:#ff9d4d}
 
 .target[data-colour="red"] svg *{stroke:#ff4d5a}
 .target[data-colour="blue"] svg *{stroke:#4da6ff}
@@ -59,9 +63,9 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #waitIntro p{font-size:18px;line-height:1.45;margin:4px 0}
 #waitIntro .example{font-size:21px;line-height:1.6;margin-top:12px}
 #waitIntro.hide{display:none!important}
-#game.decoyMode #arena{border-color:#63ef8a;box-shadow:inset 0 0 44px #20d96855,0 0 18px #20d96888}
-#game.decoyMode #rule{color:#8dffab;text-shadow:0 0 12px #20d96855}
-#game.decoyMode #timerBar{background:#8dffab}
+#game.decoyMode #arena{border-color:#79ff9b;box-shadow:inset 0 0 46px #2cff715f,0 0 22px #2cff71aa}
+#game.decoyMode #rule{color:#a5ffba;text-shadow:0 0 14px #35ff786f}
+#game.decoyMode #timerBar{background:#a5ffba}
 #decoyIntro{position:absolute;inset:0;z-index:27;background:#001b09f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
 #decoyIntro h3{font-size:11vw;margin:0 0 16px;color:#8dffab;letter-spacing:.08em}
 #decoyIntro p{font-size:18px;line-height:1.45;margin:4px 0}
@@ -106,7 +110,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">2.2 • YELLOW DON'T TOUCH</div>
+<div class="sub">2.4 • 4→5→6 SHAPES</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -125,6 +129,8 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 <div class="target" id="t1" data-shape="square" data-colour="blue"><svg viewBox="0 0 82 82" aria-hidden="true"><rect x="9" y="9" width="64" height="64" rx="5"/></svg></div>
 <div class="target" id="t2" data-shape="triangle" data-colour="green"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 74,72 8,72"/></svg></div>
 <div class="target" id="t3" data-shape="star" data-colour="yellow"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg></div>
+<div class="target hide" id="t4" data-shape="diamond" data-colour="purple"></div>
+<div class="target hide" id="t5" data-shape="hexagon" data-colour="orange"></div>
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
@@ -151,13 +157,16 @@ let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
 let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match',mainSpawn=null;
 let targetMap=['circle','square','triangle','star'];
 let colourMap=['red','blue','green','yellow'];
+let activeShapeCount=4,newShapeSeen={diamond:false,hexagon:false};
 let reverseSeen=false,colourSeen=false,decoySeen=false,waitSeen=false,paused=false,memoryHideOnTouch=false;
 
 const shapes=[
  {name:'circle',label:'●'},
  {name:'square',label:'■'},
  {name:'triangle',label:'▲'},
- {name:'star',label:'★'}
+ {name:'star',label:'★'},
+ {name:'diamond',label:'◆'},
+ {name:'hexagon',label:'⬢'}
 ];
 
 $('best').textContent='BEST: '+best;
@@ -173,8 +182,12 @@ function renderTarget(t,shape,colour){
    t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><rect x="9" y="9" width="64" height="64" rx="5"/></svg>';
  }else if(shape==='triangle'){
    t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 74,72 8,72"/></svg>';
- }else{
+ }else if(shape==='star'){
    t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg>';
+ }else if(shape==='diamond'){
+   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 75,41 41,75 7,41"/></svg>';
+ }else{
+   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="22,9 60,9 78,41 60,73 22,73 4,41"/></svg>';
  }
 }
 function targetIdForColour(colour){
@@ -191,11 +204,26 @@ function clearPieces(){
 }
 function shuffleTargets(){
  targetMap.sort(()=>Math.random()-.5);
- for(let i=0;i<4;i++){
+ for(let i=0;i<activeShapeCount;i++){
    const t=$('t'+i);
    renderTarget(t,targetMap[i],colourMap[i]);
    t.classList.add('flash');
    setTimeout(()=>t.classList.remove('flash'),180);
+ }
+}
+function activeShapes(){return shapes.slice(0,activeShapeCount);}
+function updateShapeCount(){
+ const wanted=score>=30?6:score>=15?5:4;
+ if(wanted===activeShapeCount)return;
+ activeShapeCount=wanted;
+ if(wanted===5){
+   targetMap.push('diamond'); colourMap.push('purple');
+   $('t4').classList.remove('hide'); renderTarget($('t4'),'diamond','purple');
+   rule.textContent='NEW SHAPE: DIAMOND';
+ }else if(wanted===6){
+   targetMap.push('hexagon'); colourMap.push('orange');
+   $('t5').classList.remove('hide'); renderTarget($('t5'),'hexagon','orange');
+   rule.textContent='NEW SHAPE: HEXAGON';
  }
 }
 function chooseMode(){
@@ -230,7 +258,7 @@ function randomPos(avoidMain=false){
    const ar=arena.getBoundingClientRect();
    const left=p.x, top=p.y, right=p.x+92, bottom=p.y+92;
    const margin=10;
-   for(let i=0;i<4;i++){
+   for(let i=0;i<activeShapeCount;i++){
      const r=$('t'+i).getBoundingClientRect();
      const tl=r.left-ar.left-margin, tt=r.top-ar.top-margin;
      const tr=r.right-ar.left+margin, tb=r.bottom-ar.top+margin;
@@ -324,7 +352,7 @@ function overlapTarget(el,target){
 function checkDrop(obj){
  const correctId=targetIdFor(obj.shape);
  let chosen=null;
- for(let i=0;i<4;i++) if(overlapTarget(obj.el,$('t'+i))) chosen='t'+i;
+ for(let i=0;i<activeShapeCount;i++) if(overlapTarget(obj.el,$('t'+i))) chosen='t'+i;
 
  if(!chosen){fail('Missed the target.');return;}
 
@@ -387,6 +415,7 @@ function newRound(){
  clearPieces();
  mainSpawn=null;
  updateDifficulty();
+ updateShapeCount();
  memoryHideOnTouch=false;
  mode=chooseMode();
  $('game').classList.toggle('reverseMode',mode==='reverse');
@@ -412,7 +441,8 @@ function newRound(){
    rule.textContent='MEMORISE THE TARGETS';
  }
 
- const main=shapes[Math.floor(Math.random()*shapes.length)];
+ const pool=activeShapes();
+ const main=pool[Math.floor(Math.random()*pool.length)];
  let mainColour=null;
  if(mode==='colour'){
    const shapeTarget=targetIdFor(main.name);
@@ -425,8 +455,8 @@ function newRound(){
  makePiece(main,false,mainColour);
 
  if(mode==='decoy'){
-   let d1=shapes[Math.floor(Math.random()*shapes.length)];
-   let d2=shapes[Math.floor(Math.random()*shapes.length)];
+   let d1=pool[Math.floor(Math.random()*pool.length)];
+   let d2=pool[Math.floor(Math.random()*pool.length)];
    makePiece(d1,true);
    makePiece(d2,true);
  }
@@ -436,21 +466,21 @@ function newRound(){
  if(mode!=='decoy' && mode!=='wait' && score>=6){
    const chance1=Math.min(.84,.28+(score-6)*.027);
    if(Math.random()<chance1){
-     let d=shapes[Math.floor(Math.random()*shapes.length)];
+     let d=pool[Math.floor(Math.random()*pool.length)];
      makePiece(d,true);
    }
  }
  if(mode!=='decoy' && mode!=='wait' && score>=15){
    const chance2=Math.min(.70,.12+(score-15)*.023);
    if(Math.random()<chance2){
-     let d=shapes[Math.floor(Math.random()*shapes.length)];
+     let d=pool[Math.floor(Math.random()*pool.length)];
      makePiece(d,true);
    }
  }
  if(mode!=='decoy' && mode!=='wait' && score>=28){
    const chance3=Math.min(.50,.08+(score-28)*.019);
    if(Math.random()<chance3){
-     let d=shapes[Math.floor(Math.random()*shapes.length)];
+     let d=pool[Math.floor(Math.random()*pool.length)];
      makePiece(d,true);
    }
  }
@@ -505,7 +535,8 @@ function startGame(){
  $('menu').classList.add('hide');
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
- score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;waitSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
+ score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;waitSeen=false;paused=false;memoryHideOnTouch=false;activeShapeCount=4;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
+ $('t4').classList.add('hide');$('t5').classList.add('hide');
  for(let i=0;i<4;i++) renderTarget($('t'+i),targetMap[i],colourMap[i]);
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
  newRound();
