@@ -152,7 +152,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   align-items:center;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 18px);
+  padding:calc(env(safe-area-inset-top) + 6px) 10px calc(env(safe-area-inset-bottom) + 10px);
   color:#fff;
 }
 .stateTutorial.hide{display:none!important}
@@ -166,7 +166,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   border-radius:18px;
 }
 .stateTutorial .tutorialShell{
-  width:min(92vw,410px);
+  width:min(94vw,410px);
   display:flex;
   flex-direction:column;
   gap:8px;
@@ -186,15 +186,15 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   margin:0;
   text-align:center;
   color:var(--cue);
-  font-size:clamp(36px,11.7vw,58px);
+  font-size:clamp(34px,10.9vw,54px);
   line-height:1;
   letter-spacing:.04em;
   text-shadow:0 0 14px color-mix(in srgb,var(--cue) 65%,transparent);
 }
 .stateTutorial .lead{
-  margin:0 8px 2px;
+  margin:0 8px 0;
   text-align:center;
-  font-size:14.5px;
+  font-size:14px;
   line-height:1.3;
 }
 .stateTutorial .lead b{color:var(--cue)}
@@ -211,7 +211,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   border-radius:14px;
   box-shadow:inset 0 0 22px color-mix(in srgb,var(--cue) 10%,transparent);
 }
-.stateTutorial .panel{padding:9px}
+.stateTutorial .panel{padding:8px}
 .stateTutorial .panelTitle{
   text-align:center;
   font-size:11px;
@@ -283,7 +283,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   font-weight:900;
   letter-spacing:.05em;
 }
-.stateTutorial .how{padding:9px 11px}
+.stateTutorial .how{padding:7px 10px}
 .stateTutorial .howTitle{
   text-align:center;
   color:var(--cue);
@@ -297,7 +297,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   grid-template-columns:28px 1fr;
   gap:8px;
   align-items:start;
-  margin:5px 0;
+  margin:3px 0;
   font-size:13px;
   line-height:1.35;
 }
@@ -307,7 +307,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   font-weight:900;
 }
 .stateTutorial .remember{
-  padding:8px 10px;
+  padding:7px 10px;
   font-size:12px;
   line-height:1.45;
   margin-bottom:2px;
@@ -318,7 +318,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   position:relative;
   width:100%;
   margin-top:2px;
-  padding:9px 8px 11px;
+  padding:8px 8px 9px;
   background:#030303;
   text-align:center;
   color:color-mix(in srgb,var(--cue) 70%,#fff);
@@ -370,7 +370,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 }
 .stateTutorial .animStage{
   position:relative;
-  height:126px;
+  height:138px;
   border:1px solid #252525;
   border-radius:11px;
   background:#050505;
@@ -482,13 +482,80 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 body.tutorialOpen #game > *:not(.stateTutorial){visibility:hidden!important}
 body.tutorialOpen{overflow:hidden!important}
+
+/* ===== 3.9 APPROVED TUTORIAL PIXEL LOCKS ===== */
+#waitIntro .tutorialShell,#reverseIntro .tutorialShell,#colourIntro .tutorialShell,#decoyIntro .tutorialShell{
+  min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
+  justify-content:center;
+}
+#waitIntro .animStage{height:190px}
+#waitIntro .how{padding:5px 10px}
+#waitIntro .howTitle{margin-bottom:3px}
+#waitIntro .step{margin:2px 0;line-height:1.22}
+#waitIntro .remember{padding:6px 10px}
+#waitIntro .noTouchHand{font-size:64px}
+#waitIntro .noTouchWords{font-size:23px}
+
+#reverseIntro .animStage{height:134px}
+#reverseIntro .how{padding:6px 10px}
+#reverseIntro .step{margin:2px 0}
+
+#colourIntro .animStage{height:138px}
+#colourIntro .solidPiece{top:31px}
+#colourIntro .targetMini{top:28px}
+
+.blueMoveStar{animation:blueMoveStar 3.2s ease-in-out infinite;left:18px;top:47px;font-size:36px}
+@keyframes blueMoveStar{
+  0%,12%{left:18px;top:47px}
+  36%,46%{left:92px;top:47px}
+  72%,88%{left:calc(100% - 76px);top:47px}
+  100%{left:18px;top:47px}
+}
+.blueMoveFinger{animation:blueMoveFinger 3.2s ease-in-out infinite}
+@keyframes blueMoveFinger{
+  0%,12%{left:29px;top:78px}
+  36%,46%{left:103px;top:78px}
+  72%,88%{left:calc(100% - 65px);top:78px}
+  100%{left:29px;top:78px}
+}
+
+.greenMoveDecoy{animation:greenMoveDecoy 3.0s ease-in-out infinite}
+@keyframes greenMoveDecoy{
+  0%,12%{left:92px;top:51px}
+  66%,84%{left:calc(100% - 75px);top:51px}
+  100%{left:92px;top:51px}
+}
+.greenMoveFinger{animation:greenMoveFinger 3.0s ease-in-out infinite}
+@keyframes greenMoveFinger{
+  0%,12%{left:102px;top:84px}
+  66%,84%{left:calc(100% - 65px);top:84px}
+  100%{left:102px;top:84px}
+}
+#decoyIntro .animStage{height:138px}
+#decoyIntro .how{padding:6px 10px}
+#decoyIntro .step{margin:2px 0}
+
+@media (max-height:760px){
+  .stateTutorial .tutorialShell{gap:4px}
+  .stateTutorial h3{font-size:clamp(31px,10vw,48px)}
+  .stateTutorial .lead{font-size:13px;line-height:1.2}
+  .stateTutorial .panel{padding:6px}
+  .stateTutorial .demoStage{height:98px}
+  .stateTutorial .how{padding:5px 9px}
+  .stateTutorial .step{font-size:12px;margin:1px 0}
+  .stateTutorial .remember{padding:5px 8px}
+  .stateTutorial .continuePrompt{padding:6px 8px 7px}
+  #waitIntro .animStage{height:170px}
+  #reverseIntro .animStage,#colourIntro .animStage,#decoyIntro .animStage{height:126px}
+}
+
 </style>
 </head>
 <body>
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">3.8 • IPHONE TUTORIAL FIT</div>
+<div class="sub">3.9 • TUTORIAL PIXEL LOCK</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -564,8 +631,8 @@ body.tutorialOpen{overflow:hidden!important}
     <div class="compare">
       <div class="panel"><div class="panelTitle bad">DON'T FOLLOW THE SHAPE</div>
         <div class="demoStage">
-          <div class="solidPiece" style="left:36px;color:#ff4b55">★</div>
           <div class="targetMini one" style="color:#63d4ff"><svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg></div>
+          <div class="solidPiece" style="left:calc(100% - 113px);top:31px;color:#ff4b55;font-size:31px">★</div>
           <div class="badge bad">SAME SHAPE = WRONG</div>
         </div>
       </div>
@@ -580,10 +647,10 @@ body.tutorialOpen{overflow:hidden!important}
 
     <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
       <div class="animStage">
-        <div class="animPiece animColour" style="color:#ff4b55">★</div>
+        <div class="animPiece blueMoveStar" style="color:#ff4b55">★</div>
         <div class="animTarget" style="left:92px;color:#63d4ff"><svg viewBox="0 0 52 52"><polygon points="26,3 32,18 48,18 35,29 40,47 26,37 12,47 17,29 4,18 20,18"/></svg></div>
         <div class="animTarget square" style="right:28px;color:#ff4b55"></div>
-        <div class="animFinger animFingerColour">☝️</div>
+        <div class="animFinger blueMoveFinger">☝️</div>
         <div class="animCheck">✓</div>
       </div>
       <div class="animCaption">The red star ignores the blue star target and moves to the red square target.</div>
@@ -623,9 +690,9 @@ body.tutorialOpen{overflow:hidden!important}
     <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
       <div class="animStage">
         <div class="animPiece" style="left:36px;color:#fff">★</div>
-        <div class="animPiece animDecoy faded" style="color:#fff">▲</div>
+        <div class="animPiece greenMoveDecoy faded" style="color:#fff">▲</div>
         <div class="animTarget triangle" style="right:28px;color:#79ff9b"><svg viewBox="0 0 52 52"><polygon points="26,3 49,47 3,47"/></svg></div>
-        <div class="animFinger animFingerDecoy">☝️</div>
+        <div class="animFinger greenMoveFinger">☝️</div>
         <div class="animCheck">✓</div>
       </div>
       <div class="animCaption">The solid piece is ignored. The faded decoy is dragged to its matching-shaped target.</div>
