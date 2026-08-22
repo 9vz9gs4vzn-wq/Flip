@@ -59,6 +59,15 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #game.waitMode #rule{color:#fff18a;text-shadow:0 0 12px #ffd51f66}
 #game.waitMode #timerBar{background:#fff18a}
 
+
+.tutorialDemo{margin-top:22px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.demoPiece,.demoTarget,.demoDecoy{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:30px}
+.demoPiece{border-radius:14px;background:#111}
+.demoDecoy{opacity:.38}
+.demoTarget{border:3px dotted #aaa;border-radius:12px}
+.demoArrow{font-size:28px;font-weight:800}
+.demoBad{color:#ff6b6b}
+.demoGood{color:#7dff9b}
 .continuePrompt{margin-top:28px;font-size:14px;font-weight:800;letter-spacing:.14em;opacity:.9;animation:continuePulse 1.1s ease-in-out infinite}
 @keyframes continuePulse{0%,100%{opacity:.55}50%{opacity:1}}
 #waitIntro{position:absolute;inset:0;z-index:28;background:#211b00f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
@@ -113,7 +122,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">2.8 • TAP TO CONTINUE</div>
+<div class="sub">2.9 • GUIDED FIRST ROUND</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -137,10 +146,14 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
-<div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="example">● → ✕ CIRCLE<br>● → ✓ ANY OTHER TARGET</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
-<div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="example">RED ● → ✓ RED TARGET<br>Even if the target is a different shape.</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
-<div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="example">🟢 GREEN = USE A DECOY</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
-<div id="waitIntro" class="hide"><h3>DON'T TOUCH!</h3><p>Yellow means <b>hands off</b>.<br>Do not touch any shape until the yellow state ends.</p><div class="example">🟡 WAIT • RESIST • SURVIVE</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="tutorialDemo"><div class="demoPiece">●</div><div class="demoArrow">→</div><div class="demoTarget demoBad">● ✕</div><div class="demoTarget demoGood">■ ✓</div></div>
+<div class="example">Do NOT use the matching target.</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="tutorialDemo"><div class="demoPiece" style="color:#ff4d5a">●</div><div class="demoArrow">→</div><div class="demoTarget demoGood" style="border-color:#ff4d5a">■</div></div>
+<div class="example">Ignore the shape. Match the colour.</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="tutorialDemo"><div class="demoPiece">●</div><div class="demoArrow demoBad">✕</div><div class="demoDecoy">▲</div><div class="demoArrow">→</div><div class="demoTarget demoGood">▲</div></div>
+<div class="example">Ignore the normal piece. Use a faded decoy.</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="waitIntro" class="hide"><h3>DON'T TOUCH!</h3><p>Yellow means <b>hands off</b>.<br>Do not touch any shape until the yellow state ends.</p><div class="tutorialDemo"><div class="demoPiece">★</div><div class="demoArrow demoBad">✋</div><div class="demoTarget demoGood">WAIT</div></div>
+<div class="example">Do nothing until the yellow state ends.</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
 </section>
 
 <section id="over" class="hide">
@@ -161,7 +174,7 @@ let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match',
 let targetMap=['circle','square','triangle','star'];
 let colourMap=['red','blue','green','yellow'];
 let activeShapeCount=4,newShapeSeen={diamond:false,hexagon:false};
-let reverseSeen=false,colourSeen=false,decoySeen=false,waitSeen=false,paused=false,memoryHideOnTouch=false;
+let reverseSeen=false,colourSeen=false,decoySeen=false,waitSeen=false,paused=false,memoryHideOnTouch=false,firstRoundBoost=false;
 
 const shapes=[
  {name:'circle',label:'●'},
@@ -490,15 +503,18 @@ function newRound(){
 
  const tok=roundToken;
  function beginTimedRound(){
-   paused=false; roundStart=performance.now();
+   paused=false;
+   const thisLimit=firstRoundBoost ? Math.round(roundLimit*1.55) : roundLimit;
+   firstRoundBoost=false;
+   roundStart=performance.now();
    function animateTimer(){
      if(tok!==roundToken||paused)return;
-     const p=Math.max(0,1-(performance.now()-roundStart)/roundLimit);
+     const p=Math.max(0,1-(performance.now()-roundStart)/thisLimit);
      timerBar.style.transform='scaleX('+p+')';
      if(p>0) requestAnimationFrame(animateTimer);
    }
    requestAnimationFrame(animateTimer);
-   timer=setTimeout(()=>fail('Too slow.'),roundLimit);
+   timer=setTimeout(()=>fail('Too slow.'),thisLimit);
  }
  
 function waitForTutorialTap(id,after){
@@ -521,7 +537,8 @@ function waitForTutorialTap(id,after){
 }
 function beginWaitRound(){
    paused=false;
-   const waitMs=Math.max(1150,1750-Math.min(score,50)*7)+Math.random()*250;
+   let waitMs=Math.max(1150,1750-Math.min(score,50)*7)+Math.random()*250;
+   if(firstRoundBoost){ waitMs*=1.45; firstRoundBoost=false; }
    roundStart=performance.now();
    function animateWait(){
      if(tok!==roundToken||paused)return;
@@ -534,16 +551,16 @@ function beginWaitRound(){
  }
  if(mode==='reverse'&&!reverseSeen){
    reverseSeen=true;
-   waitForTutorialTap('reverseIntro',beginTimedRound);
+   waitForTutorialTap('reverseIntro',()=>{firstRoundBoost=true;beginTimedRound();});
  }else if(mode==='colour'&&!colourSeen){
    colourSeen=true;
-   waitForTutorialTap('colourIntro',beginTimedRound);
+   waitForTutorialTap('colourIntro',()=>{firstRoundBoost=true;beginTimedRound();});
  }else if(mode==='decoy'&&!decoySeen){
    decoySeen=true;
-   waitForTutorialTap('decoyIntro',beginTimedRound);
+   waitForTutorialTap('decoyIntro',()=>{firstRoundBoost=true;beginTimedRound();});
  }else if(mode==='wait'&&!waitSeen){
    waitSeen=true;
-   waitForTutorialTap('waitIntro',beginWaitRound);
+   waitForTutorialTap('waitIntro',()=>{firstRoundBoost=true;beginWaitRound();});
  }else if(mode==='wait'){
    beginWaitRound();
  }else beginTimedRound();
@@ -553,7 +570,7 @@ function startGame(){
  $('menu').classList.add('hide');
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
- score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;waitSeen=false;paused=false;memoryHideOnTouch=false;activeShapeCount=4;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
+ score=0;mult=1;reverseSeen=false;colourSeen=false;decoySeen=false;waitSeen=false;paused=false;memoryHideOnTouch=false;firstRoundBoost=false;activeShapeCount=4;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
  $('t4').classList.add('hide');$('t5').classList.add('hide');
  for(let i=0;i<4;i++) renderTarget($('t'+i),targetMap[i],colourMap[i]);
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
