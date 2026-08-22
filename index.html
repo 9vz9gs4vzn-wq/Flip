@@ -32,7 +32,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .piece{position:absolute;width:68px;height:68px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 22px #fff3;z-index:10;touch-action:none;user-select:none}
 .piece.circle{border-radius:50%}
 .piece.triangle{clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0}
-.piece.decoy{opacity:.38;filter:blur(.4px)}
+.piece.decoy{filter:blur(.25px)}
 #msg{position:absolute;bottom:2%;width:100%;text-align:center;color:#777;font-size:11px}
 #flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:20}
 #flash.good{background:#fff;opacity:.10}
@@ -57,7 +57,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">0.9 • BETTER TARGETS</div>
+<div class="sub">1.1 • ADAPTIVE DECOYS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -96,7 +96,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 const $=id=>document.getElementById(id);
 const arena=$('arena'),flash=$('flash'),rule=$('rule'),timerBar=$('timerBar');
 let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
-let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match';
+let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match',mainSpawn=null;
 let targetMap=['circle','square','triangle','star'];
 let reverseSeen=false,paused=false,memoryHideOnTouch=false;
 
@@ -147,20 +147,36 @@ function chooseMode(){
  if(score>=10 && r<.42) return 'memory';
  return 'match';
 }
-function randomPos(){
- return {
-   x:20+Math.random()*Math.max(10,arena.clientWidth-100),
-   y:120+Math.random()*Math.max(10,arena.clientHeight-230)
- };
+function randomPos(avoidMain=false){
+ const maxX=Math.max(20,arena.clientWidth-100);
+ const maxY=Math.max(120,arena.clientHeight-110);
+ let pos=null,tries=0;
+ do{
+   pos={
+     x:20+Math.random()*Math.max(10,maxX-20),
+     y:120+Math.random()*Math.max(10,maxY-120)
+   };
+   tries++;
+ }while(
+   avoidMain && mainSpawn && tries<80 &&
+   Math.abs(pos.x-mainSpawn.x)<125 &&
+   Math.abs(pos.y-mainSpawn.y)<125
+ );
+ return pos;
 }
 function makePiece(shape,decoy=false){
  const el=document.createElement('div');
  el.className='piece '+shape.name+(decoy?' decoy':'');
  el.textContent=shape.label;
- const pos=randomPos();
+ if(decoy){
+   const decoyOpacity=Math.min(.92,.30+score*.0125);
+   el.style.opacity=decoyOpacity.toFixed(2);
+ }
+ const pos=randomPos(decoy);
  el.style.left=pos.x+'px'; el.style.top=pos.y+'px';
  arena.appendChild(el);
 
+ if(!decoy) mainSpawn={x:pos.x,y:pos.y};
  const obj={el,shape:shape.name,decoy,dragging:false};
  active.push(obj);
 
@@ -252,6 +268,7 @@ function newRound(){
  roundToken++;
  clearTimeout(timer);
  clearPieces();
+ mainSpawn=null;
  updateDifficulty();
  memoryHideOnTouch=false;
  mode=chooseMode();
@@ -272,13 +289,28 @@ function newRound(){
  const main=shapes[Math.floor(Math.random()*shapes.length)];
  makePiece(main,false);
 
- if(score>=8 && Math.random()<.35){
-   let d=shapes[Math.floor(Math.random()*shapes.length)];
-   makePiece(d,true);
+ // Decoys become more frequent and more numerous as the score climbs.
+ // ~25% chance at score 8, ~55% at 20, ~80% at 30+, plus extra decoys later.
+ if(score>=8){
+   const chance1=Math.min(.82,.25+(score-8)*.025);
+   if(Math.random()<chance1){
+     let d=shapes[Math.floor(Math.random()*shapes.length)];
+     makePiece(d,true);
+   }
  }
- if(score>=16 && Math.random()<.25){
-   let d=shapes[Math.floor(Math.random()*shapes.length)];
-   makePiece(d,true);
+ if(score>=18){
+   const chance2=Math.min(.68,.12+(score-18)*.022);
+   if(Math.random()<chance2){
+     let d=shapes[Math.floor(Math.random()*shapes.length)];
+     makePiece(d,true);
+   }
+ }
+ if(score>=32){
+   const chance3=Math.min(.48,.08+(score-32)*.018);
+   if(Math.random()<chance3){
+     let d=shapes[Math.floor(Math.random()*shapes.length)];
+     makePiece(d,true);
+   }
  }
 
  const tok=roundToken;
