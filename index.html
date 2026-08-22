@@ -549,13 +549,88 @@ body.tutorialOpen{overflow:hidden!important}
   #reverseIntro .animStage,#colourIntro .animStage,#decoyIntro .animStage{height:126px}
 }
 
+
+/* ===== 4.0 FINAL TUTORIAL ALIGNMENT PASS ===== */
+
+/* RED: centre the star in the DON'T DO THIS dotted star. */
+#reverseIntro .compare .panel:first-child .solidPiece{
+  left:calc(100% - 113px)!important;
+  top:31px!important;
+  font-size:31px!important;
+}
+
+/* GREEN: nudge the moving decoy UP from 3.9 so it lands visually centred. */
+#decoyIntro .greenMoveDecoy{top:45px!important}
+#decoyIntro .greenMoveFinger{top:78px!important}
+@keyframes greenMoveDecoy{
+  0%,12%{left:92px;top:45px}
+  66%,84%{left:calc(100% - 75px);top:45px}
+  100%{left:92px;top:45px}
+}
+@keyframes greenMoveFinger{
+  0%,12%{left:102px;top:78px}
+  66%,84%{left:calc(100% - 65px);top:78px}
+  100%{left:102px;top:78px}
+}
+
+/* YELLOW: use the spare vertical room instead of leaving large dead bands. */
+#waitIntro .tutorialShell{
+  min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
+  justify-content:space-evenly!important;
+  gap:10px!important;
+}
+#waitIntro .animStage{height:210px!important}
+#waitIntro .animBlock{padding:10px!important}
+#waitIntro .how{padding:7px 10px!important}
+#waitIntro .continuePrompt{margin-bottom:2px}
+
+/* BLUE: exact common centre-line through both targets.
+   Target tops are 38px and heights 52px => centre Y = 64px.
+   Star is 44px high => star top = 42px.
+   The blue star target begins at x=92 and is 52px wide => centre x=118.
+   Star is 44px wide => middle-pass left=96px.
+   Right square is 28px from right => its centre requires star left=calc(100% - 76px).
+*/
+#colourIntro .blueMoveStar{
+  top:42px!important;
+  font-size:36px!important;
+}
+@keyframes blueMoveStar{
+  0%,12%{left:18px;top:42px}
+  36%,46%{left:96px;top:42px}
+  72%,88%{left:calc(100% - 76px);top:42px}
+  100%{left:18px;top:42px}
+}
+
+/* Finger follows the same horizontal offsets and touches the star's bottom point. */
+#colourIntro .blueMoveFinger{top:73px!important}
+@keyframes blueMoveFinger{
+  0%,12%{left:29px;top:73px}
+  36%,46%{left:107px;top:73px}
+  72%,88%{left:calc(100% - 65px);top:73px}
+  100%{left:29px;top:73px}
+}
+
+/* BLUE top-left example: same centre as its 50px dotted star target. */
+#colourIntro .compare .panel:first-child .solidPiece{
+  left:calc(100% - 110px)!important;
+  top:31px!important;
+  font-size:31px!important;
+}
+
+/* Preserve compact fit on shorter Safari viewports. */
+@media (max-height:760px){
+  #waitIntro .tutorialShell{gap:7px!important}
+  #waitIntro .animStage{height:184px!important}
+}
+
 </style>
 </head>
 <body>
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">3.9 • TUTORIAL PIXEL LOCK</div>
+<div class="sub">4.0 • FINAL TUTORIAL ALIGNMENT</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
