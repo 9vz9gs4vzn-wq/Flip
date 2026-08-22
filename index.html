@@ -349,6 +349,104 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 @keyframes wtFinger{0%,18%{left:36px;top:88px;opacity:1}50%{left:94px;top:78px;opacity:1}58%,100%{left:94px;top:78px;opacity:.18}}
 @keyframes wtCheck{0%,67%{opacity:0}68%,100%{opacity:1}}
 
+
+.stateTutorial .animBlock{
+  background:#080808;
+  border:1px solid color-mix(in srgb,var(--cue) 55%,#222);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:inset 0 0 22px color-mix(in srgb,var(--cue) 10%,transparent);
+}
+.stateTutorial .animTitle{
+  text-align:center;
+  color:var(--cue);
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.08em;
+  margin-bottom:8px;
+}
+.stateTutorial .animStage{
+  position:relative;
+  height:145px;
+  border:1px solid #252525;
+  border-radius:11px;
+  background:#050505;
+  overflow:hidden;
+}
+.stateTutorial .animPiece{
+  position:absolute;
+  left:36px;
+  top:50px;
+  width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  background:transparent!important;
+  border:none!important;
+  box-shadow:none!important;
+  z-index:4;
+}
+.stateTutorial .animTarget{
+  position:absolute;
+  width:52px;
+  height:52px;
+  top:47px;
+  color:var(--cue);
+}
+.stateTutorial .animTarget::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border:3px dotted currentColor;
+}
+.stateTutorial .animTarget.circle::before{border-radius:50%}
+.stateTutorial .animTarget.square::before{border-radius:7px}
+.stateTutorial .animTarget.triangle::before{display:none}
+.stateTutorial .animTarget svg{position:absolute;inset:0;width:100%;height:100%}
+.stateTutorial .animTarget svg *{
+  fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 5;
+}
+.stateTutorial .animFinger{
+  position:absolute;
+  font-size:25px;
+  z-index:7;
+}
+.stateTutorial .animCheck{
+  position:absolute;
+  right:12px;
+  bottom:10px;
+  color:#79ff9b;
+  font-size:22px;
+  font-weight:900;
+}
+.stateTutorial .animCaption{
+  text-align:center;
+  font-size:12px;
+  color:#c7c7c7;
+  margin-top:7px;
+  line-height:1.35;
+}
+
+/* approved looping demo motions */
+.animReverse{animation:animReverse 3.0s ease-in-out infinite}
+@keyframes animReverse{0%,12%{left:36px}66%,84%{left:286px}100%{left:36px}}
+.animDecoy{animation:animDecoy 3.0s ease-in-out infinite}
+@keyframes animDecoy{0%,12%{left:92px}66%,84%{left:286px}100%{left:92px}}
+.animColour{animation:animColour 3.0s ease-in-out infinite}
+@keyframes animColour{0%,12%{left:36px}66%,84%{left:286px}100%{left:36px}}
+.animFingerReverse{animation:animFingerReverse 3.0s ease-in-out infinite}
+@keyframes animFingerReverse{0%,12%{left:46px;top:84px}66%,84%{left:296px;top:84px}100%{left:46px;top:84px}}
+.animFingerDecoy{animation:animFingerDecoy 3.0s ease-in-out infinite}
+@keyframes animFingerDecoy{0%,12%{left:102px;top:84px}66%,84%{left:296px;top:84px}100%{left:102px;top:84px}}
+.animFingerColour{animation:animFingerColour 3.0s ease-in-out infinite}
+@keyframes animFingerColour{0%,12%{left:46px;top:84px}66%,84%{left:296px;top:84px}100%{left:46px;top:84px}}
+.animWaitFinger{animation:animWaitFinger 2.6s ease-in-out infinite}
+@keyframes animWaitFinger{0%,18%{left:74px;top:100px;opacity:1}50%{left:145px;top:88px;opacity:1}58%,100%{left:145px;top:88px;opacity:.18}}
+.animWaitCheck{animation:animWaitCheck 2.6s steps(1) infinite}
+@keyframes animWaitCheck{0%,68%{opacity:0}69%,100%{opacity:1}}
+
 #over{background:#050505ee;z-index:30}
 #over h2{font-size:12vw;margin:0 0 10px}
 #scoreline{font-size:24px}
@@ -362,7 +460,7 @@ body.tutorialOpen{overflow:hidden!important}
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">3.3 • FULLSCREEN TUTORIAL FIX</div>
+<div class="sub">3.4 • CLEAN TUTORIALS + ANIMATIONS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -386,128 +484,173 @@ body.tutorialOpen{overflow:hidden!important}
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
-<div id="reverseIntro" class="stateTutorial red hide"><div class="tutorialShell">
-  <div class="title">NEW RULE</div><h3>REVERSE!</h3>
-  <div class="lead">Do <b>NOT</b> put the shape in its matching target.<br>Use any target that is a <b>DIFFERENT</b> shape.</div>
-  <div class="compare">
-    <div class="panel"><div class="panelTitle bad">DON'T DO THIS</div>
-      <div class="demoStage">
-        <div class="solidPiece reverseBadAnim" style="color:#ff4b55">★</div>
-        <div class="targetMini one" style="color:#ff4b55">
-          <svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg>
+
+<div id="reverseIntro" class="stateTutorial red hide">
+  <div class="tutorialShell">
+    <div class="title">NEW RULE</div><h3>REVERSE!</h3>
+    <div class="lead">Do <b>NOT</b> put the shape in its matching target.<br>Use any target that is a <b>DIFFERENT</b> shape.</div>
+
+    <div class="compare">
+      <div class="panel"><div class="panelTitle bad">DON'T DO THIS</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:36px;color:#ff4b55">★</div>
+          <div class="targetMini one" style="color:#ff4b55"><svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg></div>
+          <div class="badge bad">MATCH = WRONG</div>
         </div>
-        <div class="badge bad">MATCH = WRONG</div>
       </div>
-    </div>
-    <div class="panel"><div class="panelTitle good">DO THIS INSTEAD</div>
-      <div class="demoStage">
-        <div class="solidPiece reverseGoodAnim" style="color:#ff4b55">★</div>
-        <div class="targetMini one" style="color:#ff4b55">
-          <svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg>
+      <div class="panel"><div class="panelTitle good">DO THIS INSTEAD</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:36px;color:#ff4b55">★</div>
+          <div class="targetMini square two" style="color:#63d4ff"></div>
+          <div class="badge good">DIFFERENT = CORRECT</div>
         </div>
-        <div class="targetMini square two" style="color:#63d4ff"></div>
-        <div class="badge good">DIFFERENT = CORRECT</div>
       </div>
     </div>
-  </div>
-  <div class="how"><div class="howTitle">HOW TO PLAY</div>
-    <div class="step"><div class="num">1</div><div>A solid shape appears. Touch and drag it.</div></div>
-    <div class="step"><div class="num">2</div><div>Find its matching target — in Reverse, that target is <b class="bad">WRONG</b>.</div></div>
-    <div class="step"><div class="num">3</div><div>Drag to <b class="good">ANY DIFFERENT SHAPE</b> instead.</div></div>
-  </div>
-  <div class="remember"><b>REMEMBER:</b> matching target = <span class="bad">WRONG</span> • different target = <span class="good">CORRECT</span>.</div>
-  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
-</div></div>
 
-<div id="colourIntro" class="stateTutorial blue hide"><div class="tutorialShell">
-  <div class="title">NEW RULE</div><h3>MATCH COLOUR!</h3>
-  <div class="lead">Ignore the shape.<br>Drag the piece to the target with the <b>SAME COLOUR</b>.</div>
-  <div class="compare">
-    <div class="panel"><div class="panelTitle bad">DON'T FOLLOW THE SHAPE</div>
-      <div class="demoStage">
-        <div class="solidPiece colourAnim" style="color:#ff4b55">●</div>
-        <div class="targetMini circle one" style="color:#63d4ff"></div>
-        <div class="badge bad">SAME SHAPE = WRONG</div>
+    <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
+      <div class="animStage">
+        <div class="animPiece animReverse" style="color:#ff4b55">★</div>
+        <div class="animTarget" style="left:90px;color:#ff4b55"><svg viewBox="0 0 52 52"><polygon points="26,3 32,18 48,18 35,29 40,47 26,37 12,47 17,29 4,18 20,18"/></svg></div>
+        <div class="animTarget square" style="right:28px;color:#63d4ff"></div>
+        <div class="animFinger animFingerReverse">☝️</div>
+        <div class="animCheck">✓</div>
       </div>
+      <div class="animCaption">The red star is dragged to a different-shaped target, then the demo resets and loops.</div>
     </div>
-    <div class="panel"><div class="panelTitle good">MATCH THE COLOUR</div>
-      <div class="demoStage">
-        <div class="solidPiece colourAnim" style="color:#ff4b55">●</div>
-        <div class="targetMini square two" style="color:#ff4b55"></div>
-        <div class="badge good">SAME COLOUR = CORRECT</div>
-      </div>
-    </div>
-  </div>
-  <div class="how"><div class="howTitle">HOW TO PLAY</div>
-    <div class="step"><div class="num">1</div><div>A coloured solid shape appears.</div></div>
-    <div class="step"><div class="num">2</div><div>Ignore which shape it is.</div></div>
-    <div class="step"><div class="num">3</div><div>Drag it to the target with the <b class="good">SAME COLOUR</b>.</div></div>
-  </div>
-  <div class="remember"><b>REMEMBER:</b> colour matters • shape does not.</div>
-  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
-</div></div>
 
-<div id="decoyIntro" class="stateTutorial green hide"><div class="tutorialShell">
-  <div class="title">NEW RULE</div><h3>USE A DECOY!</h3>
-  <div class="lead">Ignore the normal solid piece.<br>Grab a <b>FADED DECOY</b> and match the decoy's shape.</div>
-  <div class="compare">
-    <div class="panel"><div class="panelTitle bad">LEAVE THIS ALONE</div>
-      <div class="demoStage">
-        <div class="solidPiece" style="left:70px;color:#fff">★</div>
-        <div class="badge bad">NORMAL PIECE = WRONG</div>
-      </div>
+    <div class="how"><div class="howTitle">HOW TO PLAY</div>
+      <div class="step"><div class="num">1</div><div>A solid shape appears. Touch and drag it.</div></div>
+      <div class="step"><div class="num">2</div><div>Its matching target is <b class="bad">WRONG</b> in Reverse.</div></div>
+      <div class="step"><div class="num">3</div><div>Drag it to <b class="good">ANY DIFFERENT SHAPE</b>.</div></div>
     </div>
-    <div class="panel"><div class="panelTitle good">DRAG A DECOY</div>
-      <div class="demoStage">
-        <div class="solidPiece faded decoyAnim" style="color:#fff">▲</div>
-        <div class="targetMini triangle two" style="color:#79ff9b"><svg viewBox="0 0 48 48"><polygon points="24,3 45,43 3,43"/></svg></div>
-        <div class="badge good">DECOY = CORRECT</div>
-      </div>
-    </div>
+    <div class="remember"><b>REMEMBER:</b> matching target = <span class="bad">WRONG</span> • different target = <span class="good">CORRECT</span>.</div>
+    <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
   </div>
-  <div class="how"><div class="howTitle">HOW TO PLAY</div>
-    <div class="step"><div class="num">1</div><div>Leave the solid normal piece alone.</div></div>
-    <div class="step"><div class="num">2</div><div>Touch one of the <b>faded DECOYS</b>.</div></div>
-    <div class="step"><div class="num">3</div><div>Drag that decoy to the target matching <b class="good">THE DECOY'S SHAPE</b>.</div></div>
-  </div>
-  <div class="remember"><b>REMEMBER:</b> solid piece = <span class="bad">WRONG</span> • faded decoy = <span class="good">USE THIS</span>.</div>
-  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
-</div></div>
-
-<div id="waitIntro" class="stateTutorial yellow hide"><div class="tutorialShell">
-  <div class="title">NEW RULE</div><h3>DON'T TOUCH!</h3>
-  <div class="lead">Hands off.<br>Do <b>NOT</b> touch or drag anything until the yellow timer ends.</div>
-  <div class="compare">
-    <div class="panel"><div class="panelTitle bad">DON'T TOUCH THE SHAPE</div>
-      <div class="demoStage">
-        <div class="solidPiece" style="left:110px;color:#ffe45f">★</div>
-        <div class="finger waitFinger">☝️</div>
-        <div class="badge bad">TOUCH = WRONG</div>
-      </div>
-    </div>
-    <div class="panel"><div class="panelTitle good">WAIT</div>
-      <div class="demoStage">
-        <div class="solidPiece" style="left:110px;color:#ffe45f">★</div>
-        <div class="badge good waitCheck">✓ AUTOMATIC</div>
-      </div>
-    </div>
-  </div>
-  <div class="how"><div class="howTitle">HOW TO PLAY</div>
-    <div class="step"><div class="num">1</div><div>A tempting shape appears.</div></div>
-    <div class="step"><div class="num">2</div><div>Do absolutely <b>nothing</b>.</div></div>
-    <div class="step"><div class="num">3</div><div>When the yellow timer ends, you score <b class="good">AUTOMATICALLY</b>.</div></div>
-  </div>
-  <div class="remember"><b>REMEMBER:</b> yellow = hands off.</div>
-  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
 </div>
-<div class="demoStage yellow">
-  <div class="demoGamePiece star" style="left:145px;top:66px">★</div>
-  <div class="demoFinger waitFinger">☝️</div>
-  <div class="demoBadge demoBad">HANDS OFF</div>
-  <div class="demoGood waitCheck" style="position:absolute;right:28px;bottom:18px;font-size:28px">✓</div>
+
+<div id="colourIntro" class="stateTutorial blue hide">
+  <div class="tutorialShell">
+    <div class="title">NEW RULE</div><h3>MATCH COLOUR!</h3>
+    <div class="lead">Ignore the shape.<br>Drag the piece to the target with the <b>SAME COLOUR</b>.</div>
+
+    <div class="compare">
+      <div class="panel"><div class="panelTitle bad">DON'T FOLLOW THE SHAPE</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:36px;color:#ff4b55">●</div>
+          <div class="targetMini circle one" style="color:#63d4ff"></div>
+          <div class="badge bad">SAME SHAPE = WRONG</div>
+        </div>
+      </div>
+      <div class="panel"><div class="panelTitle good">MATCH THE COLOUR</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:36px;color:#ff4b55">●</div>
+          <div class="targetMini square two" style="color:#ff4b55"></div>
+          <div class="badge good">SAME COLOUR = CORRECT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
+      <div class="animStage">
+        <div class="animPiece animColour" style="color:#ff4b55">●</div>
+        <div class="animTarget circle" style="left:92px;color:#63d4ff"></div>
+        <div class="animTarget square" style="right:28px;color:#ff4b55"></div>
+        <div class="animFinger animFingerColour">☝️</div>
+        <div class="animCheck">✓</div>
+      </div>
+      <div class="animCaption">The red circle ignores the blue circle target and moves to the red square target.</div>
+    </div>
+
+    <div class="how"><div class="howTitle">HOW TO PLAY</div>
+      <div class="step"><div class="num">1</div><div>A coloured solid shape appears.</div></div>
+      <div class="step"><div class="num">2</div><div>Ignore which shape it is.</div></div>
+      <div class="step"><div class="num">3</div><div>Drag it to the target with the <b class="good">SAME COLOUR</b>.</div></div>
+    </div>
+    <div class="remember"><b>REMEMBER:</b> colour matters • shape does not.</div>
+    <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
+  </div>
 </div>
-<div class="demoCaption">Do nothing. When the yellow timer finishes, the round completes automatically.</div>
-</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div></div>
+
+<div id="decoyIntro" class="stateTutorial green hide">
+  <div class="tutorialShell">
+    <div class="title">NEW RULE</div><h3>USE A DECOY!</h3>
+    <div class="lead">Ignore the normal solid piece.<br>Grab a <b>FADED DECOY</b> and match the decoy's shape.</div>
+
+    <div class="compare">
+      <div class="panel"><div class="panelTitle bad">LEAVE THIS ALONE</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:70px;color:#fff">★</div>
+          <div class="badge bad">NORMAL PIECE = WRONG</div>
+        </div>
+      </div>
+      <div class="panel"><div class="panelTitle good">DRAG A DECOY</div>
+        <div class="demoStage">
+          <div class="solidPiece faded" style="left:54px;color:#fff">▲</div>
+          <div class="targetMini triangle two" style="color:#79ff9b"><svg viewBox="0 0 48 48"><polygon points="24,3 45,43 3,43"/></svg></div>
+          <div class="badge good">DECOY = CORRECT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
+      <div class="animStage">
+        <div class="animPiece" style="left:36px;color:#fff">★</div>
+        <div class="animPiece animDecoy faded" style="color:#fff">▲</div>
+        <div class="animTarget triangle" style="right:28px;color:#79ff9b"><svg viewBox="0 0 52 52"><polygon points="26,3 49,47 3,47"/></svg></div>
+        <div class="animFinger animFingerDecoy">☝️</div>
+        <div class="animCheck">✓</div>
+      </div>
+      <div class="animCaption">The solid piece is ignored. The faded decoy is dragged to its matching-shaped target.</div>
+    </div>
+
+    <div class="how"><div class="howTitle">HOW TO PLAY</div>
+      <div class="step"><div class="num">1</div><div>Leave the solid normal piece alone.</div></div>
+      <div class="step"><div class="num">2</div><div>Touch one of the <b>faded DECOYS</b>.</div></div>
+      <div class="step"><div class="num">3</div><div>Drag that decoy to the target matching <b class="good">THE DECOY'S SHAPE</b>.</div></div>
+    </div>
+    <div class="remember"><b>REMEMBER:</b> solid piece = <span class="bad">WRONG</span> • faded decoy = <span class="good">USE THIS</span>.</div>
+    <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
+  </div>
+</div>
+
+<div id="waitIntro" class="stateTutorial yellow hide">
+  <div class="tutorialShell">
+    <div class="title">NEW RULE</div><h3>DON'T TOUCH!</h3>
+    <div class="lead">Hands off.<br>Do <b>NOT</b> touch or drag anything until the yellow timer ends.</div>
+
+    <div class="compare">
+      <div class="panel"><div class="panelTitle bad">DON'T TOUCH THE SHAPE</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:110px;color:#ffe45f">★</div>
+          <div class="badge bad">TOUCH = WRONG</div>
+        </div>
+      </div>
+      <div class="panel"><div class="panelTitle good">WAIT</div>
+        <div class="demoStage">
+          <div class="solidPiece" style="left:110px;color:#ffe45f">★</div>
+          <div class="badge good">WAIT = CORRECT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="animBlock"><div class="animTitle">▶ IN-GAME ANIMATION (DEMO)</div>
+      <div class="animStage">
+        <div class="animPiece" style="left:188px;color:#ffe45f">★</div>
+        <div class="animFinger animWaitFinger">☝️</div>
+        <div class="animCheck animWaitCheck">✓</div>
+      </div>
+      <div class="animCaption">The finger approaches but does not touch. When the yellow timer finishes, the round completes automatically.</div>
+    </div>
+
+    <div class="how"><div class="howTitle">HOW TO PLAY</div>
+      <div class="step"><div class="num">1</div><div>A tempting shape appears.</div></div>
+      <div class="step"><div class="num">2</div><div>Do absolutely <b>nothing</b>.</div></div>
+      <div class="step"><div class="num">3</div><div>When the yellow timer ends, you score <b class="good">AUTOMATICALLY</b>.</div></div>
+    </div>
+    <div class="remember"><b>REMEMBER:</b> yellow = hands off.</div>
+    <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
+  </div>
+</div>
 </section>
 
 <section id="over" class="hide">
