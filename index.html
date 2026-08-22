@@ -60,21 +60,42 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #game.waitMode #timerBar{background:#fff18a}
 
 
-.tutorialDemo{margin-top:22px;width:min(88vw,360px);display:flex;flex-direction:column;gap:12px;align-items:center}
-.demoRow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.tutorialDemo{margin-top:20px;width:min(90vw,390px);display:flex;flex-direction:column;gap:12px;align-items:center}
 .demoLabel{font-size:12px;font-weight:800;letter-spacing:.12em;color:#bbb}
-.demoPiece,.demoTarget,.demoDecoy{width:58px;height:58px;display:flex;align-items:center;justify-content:center;font-size:31px;position:relative}
-.demoPiece{border-radius:14px;background:#111}
-.demoDecoy{opacity:.38}
-.demoTarget{border:3px dotted #aaa}
-.demoCircle{border-radius:50%}
-.demoSquare{border-radius:8px}
-.demoArrow{font-size:28px;font-weight:800}
-.demoBad{color:#ff6b6b}
-.demoGood{color:#7dff9b}
-.demoX,.demoCheck{position:absolute;right:-9px;top:-12px;font-size:22px;font-weight:900;text-shadow:0 2px 4px #000}
-.demoX{color:#ff6464}.demoCheck{color:#78ff98}
-.demoNote{font-size:13px;color:#c6c6c6;line-height:1.35;max-width:320px}
+.demoStage{position:relative;width:100%;height:190px;border:1px solid #353535;border-radius:16px;background:#090909;overflow:hidden}
+.demoStage.red{box-shadow:inset 0 0 28px #ff4d5a33;border-color:#7c2228}
+.demoStage.blue{box-shadow:inset 0 0 28px #2aa8ff33;border-color:#236e9e}
+.demoStage.green{box-shadow:inset 0 0 28px #2cff7133;border-color:#248542}
+.demoStage.yellow{box-shadow:inset 0 0 28px #ffd51f33;border-color:#8f7b22}
+.demoGamePiece{position:absolute;width:58px;height:58px;display:flex;align-items:center;justify-content:center;font-size:34px;left:28px;top:66px;z-index:3}
+.demoGamePiece.circle{border-radius:50%}.demoGamePiece.square{border-radius:8px}
+.demoGamePiece.decoy{opacity:.35}
+.demoTargetShape{position:absolute;width:62px;height:62px;top:64px;display:flex;align-items:center;justify-content:center;font-size:34px;color:transparent}
+.demoTargetShape::before{content:"";position:absolute;inset:0;border:3px dotted currentColor}
+.demoTargetShape.circle::before{border-radius:50%}
+.demoTargetShape.square::before{border-radius:8px}
+.demoTargetShape.triangle::before{border:0}
+.demoTargetShape.triangle svg,.demoTargetShape.star svg{position:absolute;inset:0;width:100%;height:100%}
+.demoTargetShape svg *{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 5}
+.demoTargetShape.t1{right:102px}.demoTargetShape.t2{right:24px}
+.demoFinger{position:absolute;font-size:30px;left:36px;top:118px;z-index:5;opacity:.95}
+.demoBadge{position:absolute;right:10px;top:10px;font-size:13px;font-weight:900;letter-spacing:.08em}
+.demoGood{color:#79ff9b}.demoBad{color:#ff6b6b}
+.demoCaption{font-size:13px;color:#d0d0d0;line-height:1.35;max-width:340px;text-align:center}
+.demoPulse{animation:demoPulse 1.2s ease-in-out infinite}
+@keyframes demoPulse{0%,100%{opacity:.55}50%{opacity:1}}
+.reverseMoveBad{animation:reverseBad 3.6s ease-in-out infinite}
+@keyframes reverseBad{0%,10%{left:28px;top:66px}35%,45%{left:226px;top:66px}50%,100%{left:28px;top:66px}}
+.reverseMoveGood{animation:reverseGood 3.6s ease-in-out infinite}
+@keyframes reverseGood{0%,52%{left:28px;top:66px}78%,90%{left:304px;top:66px}100%{left:28px;top:66px}}
+.colourMove{animation:colourMove 2.8s ease-in-out infinite}
+@keyframes colourMove{0%,12%{left:28px;top:66px}68%,85%{left:304px;top:66px}100%{left:28px;top:66px}}
+.decoyMove{animation:decoyMove 2.8s ease-in-out infinite}
+@keyframes decoyMove{0%,12%{left:92px;top:66px}68%,85%{left:304px;top:66px}100%{left:92px;top:66px}}
+.waitFinger{animation:waitFinger 2.2s ease-in-out infinite}
+@keyframes waitFinger{0%,20%{left:35px;top:120px;opacity:.95}48%{left:98px;top:96px;opacity:.95}55%,100%{left:98px;top:96px;opacity:.25}}
+.waitCheck{animation:waitCheck 2.2s steps(1) infinite}
+@keyframes waitCheck{0%,65%{opacity:0}66%,100%{opacity:1}}
 .continuePrompt{margin-top:28px;font-size:14px;font-weight:800;letter-spacing:.14em;opacity:.9;animation:continuePulse 1.1s ease-in-out infinite}
 @keyframes continuePulse{0%,100%{opacity:.55}50%{opacity:1}}
 #waitIntro{position:absolute;inset:0;z-index:28;background:#211b00f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
@@ -119,6 +140,60 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #reverseIntro h3{font-size:11vw;margin:0 0 16px;color:#ff6969;letter-spacing:.08em}
 #reverseIntro p{font-size:18px;line-height:1.45;margin:4px 0}.example{font-size:22px;line-height:1.6;margin-top:12px}
 #reverseIntro.hide{display:none!important}
+
+.stateTutorial{position:absolute;inset:0;z-index:40;background:#050505f8;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:22px 18px 26px;overflow:auto}
+.stateTutorial.hide{display:none!important}
+.stateTutorial .title{font-size:12px;font-weight:900;letter-spacing:.14em;margin-top:4px}
+.stateTutorial h3{font-size:10vw;margin:4px 0 8px;letter-spacing:.06em}
+.stateTutorial .lead{font-size:16px;line-height:1.35;text-align:center;max-width:360px;margin:0 0 12px}
+.stateTutorial .compare{width:min(92vw,390px);display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 12px}
+.stateTutorial .panel{background:#090909;border:1px solid #252525;border-radius:14px;padding:10px}
+.stateTutorial .panelTitle{font-size:12px;font-weight:900;letter-spacing:.1em;margin-bottom:8px;text-align:center}
+.stateTutorial .demoStage{position:relative;height:130px;border-radius:12px;background:#080808;overflow:hidden}
+.stateTutorial .demoStage::after{content:"";position:absolute;inset:0;border:1px solid #202020;border-radius:12px;pointer-events:none}
+.stateTutorial .solidPiece{position:absolute;left:28px;top:44px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:34px;z-index:4}
+.stateTutorial .faded{opacity:.34}
+.stateTutorial .targetMini{position:absolute;width:48px;height:48px;top:42px;display:flex;align-items:center;justify-content:center}
+.stateTutorial .targetMini::before{content:"";position:absolute;inset:0;border:3px dotted currentColor}
+.stateTutorial .targetMini.circle::before{border-radius:50%}
+.stateTutorial .targetMini.square::before{border-radius:7px}
+.stateTutorial .targetMini.triangle::before{border:0}
+.stateTutorial .targetMini svg{position:absolute;inset:0;width:100%;height:100%}
+.stateTutorial .targetMini svg *{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 5}
+.stateTutorial .targetMini.one{right:74px}.stateTutorial .targetMini.two{right:12px}
+.stateTutorial .finger{position:absolute;font-size:24px;z-index:5}
+.stateTutorial .badge{position:absolute;right:8px;top:8px;font-size:11px;font-weight:900;letter-spacing:.08em}
+.stateTutorial .how{width:min(92vw,390px);background:#090909;border:1px solid #252525;border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.stateTutorial .howTitle{font-size:16px;font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.stateTutorial .step{display:grid;grid-template-columns:28px 1fr;gap:8px;margin:7px 0;align-items:start}
+.stateTutorial .num{font-size:18px;font-weight:900}
+.stateTutorial .remember{width:min(92vw,390px);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;margin-bottom:16px}
+.stateTutorial .continuePrompt{font-size:14px;font-weight:900;letter-spacing:.14em;animation:continuePulse 1.1s ease-in-out infinite;padding-bottom:10px}
+@keyframes continuePulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+.stateTutorial.red{--cue:#ff4b55}
+.stateTutorial.green{--cue:#79ff9b}
+.stateTutorial.blue{--cue:#63d4ff}
+.stateTutorial.yellow{--cue:#ffe45f}
+.stateTutorial .title,.stateTutorial h3,.stateTutorial .num,.stateTutorial .howTitle{color:var(--cue)}
+.stateTutorial .panel,.stateTutorial .how,.stateTutorial .remember{box-shadow:inset 0 0 22px color-mix(in srgb,var(--cue) 14%,transparent);border-color:color-mix(in srgb,var(--cue) 45%,#222)}
+.stateTutorial .remember{background:color-mix(in srgb,var(--cue) 7%,#060606)}
+.stateTutorial .continuePrompt{color:color-mix(in srgb,var(--cue) 70%,#fff)}
+.stateTutorial .good{color:#79ff9b}.stateTutorial .bad{color:#ff6b6b}.stateTutorial .muted{color:#bdbdbd}
+
+.reverseBadAnim{animation:rvBad 3.6s ease-in-out infinite}
+.reverseGoodAnim{animation:rvGood 3.6s ease-in-out infinite}
+@keyframes rvBad{0%,8%{left:28px}34%,44%{left:236px}50%,100%{left:28px}}
+@keyframes rvGood{0%,52%{left:28px}78%,90%{left:298px}100%{left:28px}}
+.decoyAnim{animation:dcMove 2.8s ease-in-out infinite}
+@keyframes dcMove{0%,12%{left:96px}68%,85%{left:304px}100%{left:96px}}
+.colourAnim{animation:clMove 2.8s ease-in-out infinite}
+@keyframes clMove{0%,12%{left:28px}68%,85%{left:304px}100%{left:28px}}
+.waitFinger{animation:wtFinger 2.3s ease-in-out infinite}
+.waitCheck{animation:wtCheck 2.3s steps(1) infinite}
+@keyframes wtFinger{0%,18%{left:48px;top:90px;opacity:1}50%{left:136px;top:78px;opacity:1}58%,100%{left:136px;top:78px;opacity:.2}}
+@keyframes wtCheck{0%,67%{opacity:0}68%,100%{opacity:1}}
+
 #over{background:#050505ee;z-index:30}
 #over h2{font-size:12vw;margin:0 0 10px}
 #scoreline{font-size:24px}
@@ -129,7 +204,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">3.0 • CLEAR VISUAL TUTORIALS</div>
+<div class="sub">3.2 • INTEGRATED STATE TUTORIALS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -153,55 +228,127 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
-<div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="tutorialDemo">
-<div class="demoLabel">EXAMPLE: YOU GET A CIRCLE</div>
-<div class="demoRow">
-  <div class="demoPiece">●</div><div class="demoArrow">→</div>
-  <div class="demoTarget demoCircle">●<span class="demoX">✕</span></div>
+<div id="reverseIntro" class="stateTutorial red hide">
+  <div class="title">NEW RULE</div><h3>REVERSE!</h3>
+  <div class="lead">Do <b>NOT</b> put the shape in its matching target.<br>Use any target that is a <b>DIFFERENT</b> shape.</div>
+  <div class="compare">
+    <div class="panel"><div class="panelTitle bad">DON'T DO THIS</div>
+      <div class="demoStage">
+        <div class="solidPiece reverseBadAnim" style="color:#ff4b55">★</div>
+        <div class="targetMini one" style="color:#ff4b55">
+          <svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg>
+        </div>
+        <div class="badge bad">MATCH = WRONG</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panelTitle good">DO THIS INSTEAD</div>
+      <div class="demoStage">
+        <div class="solidPiece reverseGoodAnim" style="color:#ff4b55">★</div>
+        <div class="targetMini one" style="color:#ff4b55">
+          <svg viewBox="0 0 48 48"><polygon points="24,3 29,17 44,17 32,27 37,43 24,34 11,43 16,27 4,17 19,17"/></svg>
+        </div>
+        <div class="targetMini square two" style="color:#63d4ff"></div>
+        <div class="badge good">DIFFERENT = CORRECT</div>
+      </div>
+    </div>
+  </div>
+  <div class="how"><div class="howTitle">HOW TO PLAY</div>
+    <div class="step"><div class="num">1</div><div>A solid shape appears. Touch and drag it.</div></div>
+    <div class="step"><div class="num">2</div><div>Find its matching target — in Reverse, that target is <b class="bad">WRONG</b>.</div></div>
+    <div class="step"><div class="num">3</div><div>Drag to <b class="good">ANY DIFFERENT SHAPE</b> instead.</div></div>
+  </div>
+  <div class="remember"><b>REMEMBER:</b> matching target = <span class="bad">WRONG</span> • different target = <span class="good">CORRECT</span>.</div>
+  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
 </div>
-<div class="demoNote">Do NOT drag it to the circle target.</div>
-<div class="demoRow">
-  <div class="demoPiece">●</div><div class="demoArrow">→</div>
-  <div class="demoTarget demoSquare">■<span class="demoCheck">✓</span></div>
+
+<div id="colourIntro" class="stateTutorial blue hide">
+  <div class="title">NEW RULE</div><h3>MATCH COLOUR!</h3>
+  <div class="lead">Ignore the shape.<br>Drag the piece to the target with the <b>SAME COLOUR</b>.</div>
+  <div class="compare">
+    <div class="panel"><div class="panelTitle bad">DON'T FOLLOW THE SHAPE</div>
+      <div class="demoStage">
+        <div class="solidPiece colourAnim" style="color:#ff4b55">●</div>
+        <div class="targetMini circle one" style="color:#63d4ff"></div>
+        <div class="badge bad">SAME SHAPE = WRONG</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panelTitle good">MATCH THE COLOUR</div>
+      <div class="demoStage">
+        <div class="solidPiece colourAnim" style="color:#ff4b55">●</div>
+        <div class="targetMini square two" style="color:#ff4b55"></div>
+        <div class="badge good">SAME COLOUR = CORRECT</div>
+      </div>
+    </div>
+  </div>
+  <div class="how"><div class="howTitle">HOW TO PLAY</div>
+    <div class="step"><div class="num">1</div><div>A coloured solid shape appears.</div></div>
+    <div class="step"><div class="num">2</div><div>Ignore which shape it is.</div></div>
+    <div class="step"><div class="num">3</div><div>Drag it to the target with the <b class="good">SAME COLOUR</b>.</div></div>
+  </div>
+  <div class="remember"><b>REMEMBER:</b> colour matters • shape does not.</div>
+  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
 </div>
-<div class="demoNote">Drag it to ANY different target.</div>
-</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
-<div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="tutorialDemo">
-<div class="demoLabel">EXAMPLE: RED CIRCLE</div>
-<div class="demoRow">
-  <div class="demoPiece" style="color:#ff4d5a">●</div><div class="demoArrow">→</div>
-  <div class="demoTarget demoCircle" style="border-color:#4da6ff;color:#4da6ff">●<span class="demoX">✕</span></div>
+
+<div id="decoyIntro" class="stateTutorial green hide">
+  <div class="title">NEW RULE</div><h3>USE A DECOY!</h3>
+  <div class="lead">Ignore the normal solid piece.<br>Grab a <b>FADED DECOY</b> and match the decoy's shape.</div>
+  <div class="compare">
+    <div class="panel"><div class="panelTitle bad">LEAVE THIS ALONE</div>
+      <div class="demoStage">
+        <div class="solidPiece" style="left:70px;color:#fff">★</div>
+        <div class="badge bad">NORMAL PIECE = WRONG</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panelTitle good">DRAG A DECOY</div>
+      <div class="demoStage">
+        <div class="solidPiece faded decoyAnim" style="color:#fff">▲</div>
+        <div class="targetMini triangle two" style="color:#79ff9b"><svg viewBox="0 0 48 48"><polygon points="24,3 45,43 3,43"/></svg></div>
+        <div class="badge good">DECOY = CORRECT</div>
+      </div>
+    </div>
+  </div>
+  <div class="how"><div class="howTitle">HOW TO PLAY</div>
+    <div class="step"><div class="num">1</div><div>Leave the solid normal piece alone.</div></div>
+    <div class="step"><div class="num">2</div><div>Touch one of the <b>faded DECOYS</b>.</div></div>
+    <div class="step"><div class="num">3</div><div>Drag that decoy to the target matching <b class="good">THE DECOY'S SHAPE</b>.</div></div>
+  </div>
+  <div class="remember"><b>REMEMBER:</b> solid piece = <span class="bad">WRONG</span> • faded decoy = <span class="good">USE THIS</span>.</div>
+  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
 </div>
-<div class="demoNote">Ignore the matching shape if the colour is wrong.</div>
-<div class="demoRow">
-  <div class="demoPiece" style="color:#ff4d5a">●</div><div class="demoArrow">→</div>
-  <div class="demoTarget demoSquare" style="border-color:#ff4d5a;color:#ff4d5a">■<span class="demoCheck">✓</span></div>
+
+<div id="waitIntro" class="stateTutorial yellow hide">
+  <div class="title">NEW RULE</div><h3>DON'T TOUCH!</h3>
+  <div class="lead">Hands off.<br>Do <b>NOT</b> touch or drag anything until the yellow timer ends.</div>
+  <div class="compare">
+    <div class="panel"><div class="panelTitle bad">DON'T TOUCH THE SHAPE</div>
+      <div class="demoStage">
+        <div class="solidPiece" style="left:110px;color:#ffe45f">★</div>
+        <div class="finger waitFinger">☝️</div>
+        <div class="badge bad">TOUCH = WRONG</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panelTitle good">WAIT</div>
+      <div class="demoStage">
+        <div class="solidPiece" style="left:110px;color:#ffe45f">★</div>
+        <div class="badge good waitCheck">✓ AUTOMATIC</div>
+      </div>
+    </div>
+  </div>
+  <div class="how"><div class="howTitle">HOW TO PLAY</div>
+    <div class="step"><div class="num">1</div><div>A tempting shape appears.</div></div>
+    <div class="step"><div class="num">2</div><div>Do absolutely <b>nothing</b>.</div></div>
+    <div class="step"><div class="num">3</div><div>When the yellow timer ends, you score <b class="good">AUTOMATICALLY</b>.</div></div>
+  </div>
+  <div class="remember"><b>REMEMBER:</b> yellow = hands off.</div>
+  <div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div>
 </div>
-<div class="demoNote">Match RED to the RED target, even if it is a different shape.</div>
-</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
-<div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="tutorialDemo">
-<div class="demoLabel">GREEN = USE A FADED DECOY</div>
-<div class="demoRow">
-  <div class="demoPiece">●<span class="demoX">✕</span></div>
-  <div class="demoDecoy">▲<span class="demoCheck">✓</span></div>
+<div class="demoStage yellow">
+  <div class="demoGamePiece star" style="left:145px;top:66px">★</div>
+  <div class="demoFinger waitFinger">☝️</div>
+  <div class="demoBadge demoBad">HANDS OFF</div>
+  <div class="demoGood waitCheck" style="position:absolute;right:28px;bottom:18px;font-size:28px">✓</div>
 </div>
-<div class="demoNote">Leave the solid normal piece alone. Grab one of the faded pieces.</div>
-<div class="demoRow">
-  <div class="demoDecoy">▲</div><div class="demoArrow">→</div>
-  <div class="demoTarget" style="clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0">▲<span class="demoCheck">✓</span></div>
-</div>
-<div class="demoNote">Then match the DECOY'S shape to its target.</div>
-</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
-<div id="waitIntro" class="hide"><h3>DON'T TOUCH!</h3><p>Yellow means <b>hands off</b>.<br>Do not touch any shape until the yellow state ends.</p><div class="tutorialDemo">
-<div class="demoLabel">YELLOW = HANDS OFF</div>
-<div class="demoRow">
-  <div class="demoPiece">★<span class="demoX">✕</span></div>
-</div>
-<div class="demoNote">Do NOT touch or drag the shape.</div>
-<div class="demoRow">
-  <div style="font-size:34px">✋</div><div class="demoArrow">→</div><div style="font-size:34px">⏳</div><div class="demoArrow">→</div><div style="font-size:34px;color:#7dff9b">✓</div>
-</div>
-<div class="demoNote">Wait for the yellow timer to finish. You score automatically.</div>
+<div class="demoCaption">Do nothing. When the yellow timer finishes, the round completes automatically.</div>
 </div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
 </section>
 
