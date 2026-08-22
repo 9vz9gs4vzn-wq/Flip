@@ -58,6 +58,9 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #game.waitMode #arena{border-color:#ffe45f;box-shadow:inset 0 0 44px #ffd51f55,0 0 18px #ffd51f88}
 #game.waitMode #rule{color:#fff18a;text-shadow:0 0 12px #ffd51f66}
 #game.waitMode #timerBar{background:#fff18a}
+
+.continuePrompt{margin-top:28px;font-size:14px;font-weight:800;letter-spacing:.14em;opacity:.9;animation:continuePulse 1.1s ease-in-out infinite}
+@keyframes continuePulse{0%,100%{opacity:.55}50%{opacity:1}}
 #waitIntro{position:absolute;inset:0;z-index:28;background:#211b00f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
 #waitIntro h3{font-size:10vw;margin:0 0 16px;color:#fff18a;letter-spacing:.06em}
 #waitIntro p{font-size:18px;line-height:1.45;margin:4px 0}
@@ -110,7 +113,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">2.7 • 5 SECOND EXPLANATIONS</div>
+<div class="sub">2.8 • TAP TO CONTINUE</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -134,10 +137,10 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
-<div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="example">● → ✕ CIRCLE<br>● → ✓ ANY OTHER TARGET</div></div>
-<div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="example">RED ● → ✓ RED TARGET<br>Even if the target is a different shape.</div></div>
-<div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="example">🟢 GREEN = USE A DECOY</div></div>
-<div id="waitIntro" class="hide"><h3>DON'T TOUCH!</h3><p>Yellow means <b>hands off</b>.<br>Do not touch any shape until the yellow state ends.</p><div class="example">🟡 WAIT • RESIST • SURVIVE</div></div>
+<div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="example">● → ✕ CIRCLE<br>● → ✓ ANY OTHER TARGET</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="example">RED ● → ✓ RED TARGET<br>Even if the target is a different shape.</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="decoyIntro" class="hide"><h3>DECOY!</h3><p>Ignore the normal piece.<br>Grab a <b>FADED DECOY</b> and match its shape.</p><div class="example">🟢 GREEN = USE A DECOY</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
+<div id="waitIntro" class="hide"><h3>DON'T TOUCH!</h3><p>Yellow means <b>hands off</b>.<br>Do not touch any shape until the yellow state ends.</p><div class="example">🟡 WAIT • RESIST • SURVIVE</div><div class="continuePrompt">PRESS ANYWHERE TO CONTINUE</div></div>
 </section>
 
 <section id="over" class="hide">
@@ -497,7 +500,26 @@ function newRound(){
    requestAnimationFrame(animateTimer);
    timer=setTimeout(()=>fail('Too slow.'),roundLimit);
  }
- function beginWaitRound(){
+ 
+function waitForTutorialTap(id,after){
+ paused=true;
+ timerBar.style.transform='scaleX(1)';
+ const overlay=$(id);
+ overlay.classList.remove('hide');
+ let ready=false;
+ const continueNow=(e)=>{
+   if(!ready)return;
+   e.preventDefault();
+   e.stopPropagation();
+   overlay.removeEventListener('pointerdown',continueNow);
+   overlay.classList.add('hide');
+   after();
+ };
+ overlay.addEventListener('pointerdown',continueNow);
+ // Small delay prevents the touch that triggered the previous round from dismissing it.
+ setTimeout(()=>{ready=true},250);
+}
+function beginWaitRound(){
    paused=false;
    const waitMs=Math.max(1150,1750-Math.min(score,50)*7)+Math.random()*250;
    roundStart=performance.now();
@@ -511,21 +533,17 @@ function newRound(){
    timer=setTimeout(()=>success(),waitMs);
  }
  if(mode==='reverse'&&!reverseSeen){
-   reverseSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
-   $('reverseIntro').classList.remove('hide');
-   setTimeout(()=>{$('reverseIntro').classList.add('hide');beginTimedRound()},5000);
+   reverseSeen=true;
+   waitForTutorialTap('reverseIntro',beginTimedRound);
  }else if(mode==='colour'&&!colourSeen){
-   colourSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
-   $('colourIntro').classList.remove('hide');
-   setTimeout(()=>{$('colourIntro').classList.add('hide');beginTimedRound()},5000);
+   colourSeen=true;
+   waitForTutorialTap('colourIntro',beginTimedRound);
  }else if(mode==='decoy'&&!decoySeen){
-   decoySeen=true; paused=true; timerBar.style.transform='scaleX(1)';
-   $('decoyIntro').classList.remove('hide');
-   setTimeout(()=>{$('decoyIntro').classList.add('hide');beginTimedRound()},5000);
+   decoySeen=true;
+   waitForTutorialTap('decoyIntro',beginTimedRound);
  }else if(mode==='wait'&&!waitSeen){
-   waitSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
-   $('waitIntro').classList.remove('hide');
-   setTimeout(()=>{$('waitIntro').classList.add('hide');beginWaitRound()},5000);
+   waitSeen=true;
+   waitForTutorialTap('waitIntro',beginWaitRound);
  }else if(mode==='wait'){
    beginWaitRound();
  }else beginTimedRound();
