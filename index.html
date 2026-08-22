@@ -22,14 +22,10 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 #timerBar{height:100%;width:100%;background:#ddd;transform-origin:left center}
 #arena{position:absolute;left:5%;right:5%;top:19%;bottom:8%;border:1px solid #2c2c2c;border-radius:18px;overflow:hidden}
 .target{position:absolute;width:82px;height:82px;display:flex;align-items:center;justify-content:center;color:transparent;font-size:0;transition:all .18s}
-.target::before{content:"";position:absolute;inset:0;border:3px dotted #777}
-.target[data-shape="circle"]::before{border-radius:50%}
-.target[data-shape="square"]::before{border-radius:8px}
-.target[data-shape="triangle"]::before{border:0;background:none;clip-path:none;mask:none;-webkit-mask:none}
-.target[data-shape="star"]::before{border:0;background:none;clip-path:none;mask:none;-webkit-mask:none}
 .target svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.target svg polygon{fill:none;stroke:#777;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 7}
+.target svg *{fill:none;stroke:#8a8a8a;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.8 5.2}
 .target.hiddenLabel svg{opacity:0}
+.target.flash svg *{stroke:#bbb}
 #t0{left:3%;top:4%}#t1{right:3%;top:4%}#t2{left:3%;bottom:4%}#t3{right:3%;bottom:4%}
 .target.hiddenLabel::before{opacity:0}
 .target.flash{border-color:#aaa;transform:scale(1.04)}
@@ -61,7 +57,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">0.7 • FIXED SHAPE TARGETS</div>
+<div class="sub">0.9 • BETTER TARGETS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -76,10 +72,10 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 <div id="rule">MATCH THE SHAPE</div>
 <div id="timerWrap"><div id="timerBar"></div></div>
 <div id="arena">
-<div class="target" id="t0" data-shape="circle"></div>
-<div class="target" id="t1" data-shape="square"></div>
-<div class="target" id="t2" data-shape="triangle"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,6 76,74 6,74"/></svg></div>
-<div class="target" id="t3" data-shape="star"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,5 50,30 77,31 56,48 63,75 41,59 19,75 26,48 5,31 32,30"/></svg></div>
+<div class="target" id="t0" data-shape="circle"><svg viewBox="0 0 82 82" aria-hidden="true"><circle cx="41" cy="41" r="34"/></svg></div>
+<div class="target" id="t1" data-shape="square"><svg viewBox="0 0 82 82" aria-hidden="true"><rect x="9" y="9" width="64" height="64" rx="5"/></svg></div>
+<div class="target" id="t2" data-shape="triangle"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 74,72 8,72"/></svg></div>
+<div class="target" id="t3" data-shape="star"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg></div>
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
@@ -117,11 +113,14 @@ $('best2').textContent=best;
 function symbolFor(shape){return shape==='circle'?'●':shape==='square'?'■':shape==='triangle'?'▲':'★';}
 function renderTarget(t,shape){
  t.dataset.shape=shape;
- t.innerHTML='';
- if(shape==='triangle'){
-   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,6 76,74 6,74"/></svg>';
- } else if(shape==='star'){
-   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,5 50,30 77,31 56,48 63,75 41,59 19,75 26,48 5,31 32,30"/></svg>';
+ if(shape==='circle'){
+   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><circle cx="41" cy="41" r="34"/></svg>';
+ }else if(shape==='square'){
+   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><rect x="9" y="9" width="64" height="64" rx="5"/></svg>';
+ }else if(shape==='triangle'){
+   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 74,72 8,72"/></svg>';
+ }else{
+   t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg>';
  }
 }
 function targetIdFor(shape){
@@ -194,7 +193,8 @@ function makePiece(shape,decoy=false){
 function overlapTarget(el,target){
  const a=el.getBoundingClientRect(),b=target.getBoundingClientRect();
  const x=a.left+a.width/2,y=a.top+a.height/2;
- return x>b.left&&x<b.right&&y>b.top&&y<b.bottom;
+ const pad=10; // invisible forgiving hitbox, same rectangular shape for every target
+ return x>(b.left-pad)&&x<(b.right+pad)&&y>(b.top-pad)&&y<(b.bottom+pad);
 }
 function checkDrop(obj){
  const correctId=targetIdFor(obj.shape);
@@ -212,7 +212,13 @@ function checkDrop(obj){
  }
 }
 function updateDifficulty(){
- roundLimit=Math.max(650,2600-score*40);
+ roundLimit = Math.max(900,
+  score<=10 ? 2600-score*35 :
+  score<=20 ? 2250-(score-10)*30 :
+  score<=30 ? 1950-(score-20)*25 :
+  score<=40 ? 1700-(score-30)*25 :
+  1450-(score-40)*18
+);
  mult=1+Math.floor(score/5);
  $('mult').textContent=mult;
 }
