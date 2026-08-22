@@ -110,7 +110,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">2.5 • SIDE MIDDLE TARGETS</div>
+<div class="sub">2.7 • 5 SECOND EXPLANATIONS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -513,19 +513,19 @@ function newRound(){
  if(mode==='reverse'&&!reverseSeen){
    reverseSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('reverseIntro').classList.remove('hide');
-   setTimeout(()=>{$('reverseIntro').classList.add('hide');beginTimedRound()},2000);
+   setTimeout(()=>{$('reverseIntro').classList.add('hide');beginTimedRound()},5000);
  }else if(mode==='colour'&&!colourSeen){
    colourSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('colourIntro').classList.remove('hide');
-   setTimeout(()=>{$('colourIntro').classList.add('hide');beginTimedRound()},2000);
+   setTimeout(()=>{$('colourIntro').classList.add('hide');beginTimedRound()},5000);
  }else if(mode==='decoy'&&!decoySeen){
    decoySeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('decoyIntro').classList.remove('hide');
-   setTimeout(()=>{$('decoyIntro').classList.add('hide');beginTimedRound()},2000);
+   setTimeout(()=>{$('decoyIntro').classList.add('hide');beginTimedRound()},5000);
  }else if(mode==='wait'&&!waitSeen){
    waitSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('waitIntro').classList.remove('hide');
-   setTimeout(()=>{$('waitIntro').classList.add('hide');beginWaitRound()},2000);
+   setTimeout(()=>{$('waitIntro').classList.add('hide');beginWaitRound()},5000);
  }else if(mode==='wait'){
    beginWaitRound();
  }else beginTimedRound();
