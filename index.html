@@ -53,7 +53,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">0.3 • REVERSE CUE TEST</div>
+<div class="sub">0.4 • MEMORY ON TOUCH</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -94,7 +94,7 @@ const arena=$('arena'),flash=$('flash'),rule=$('rule'),timerBar=$('timerBar');
 let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
 let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match';
 let targetMap=['circle','square','triangle','star'];
-let reverseSeen=false,paused=false;
+let reverseSeen=false,paused=false,memoryHideOnTouch=false;
 
 const shapes=[
  {name:'circle',label:'●'},
@@ -149,6 +149,11 @@ function makePiece(shape,decoy=false){
 
  el.addEventListener('pointerdown',e=>{
    if(decoy){ fail('You grabbed a decoy.'); return; }
+   if(mode==='memory' && memoryHideOnTouch){
+     memoryHideOnTouch=false;
+     document.querySelectorAll('.target').forEach(t=>t.classList.add('hiddenLabel'));
+     rule.textContent='MATCH FROM MEMORY';
+   }
    obj.dragging=true;
    el.setPointerCapture(e.pointerId);
    el.style.zIndex=25;
@@ -224,6 +229,7 @@ function newRound(){
  clearTimeout(timer);
  clearPieces();
  updateDifficulty();
+ memoryHideOnTouch=false;
  mode=chooseMode();
  $('game').classList.toggle('reverseMode',mode==='reverse');
 
@@ -235,11 +241,8 @@ function newRound(){
  }else if(mode==='reverse'){
    rule.textContent=reverseSeen?'REVERSE!':'NEW RULE: REVERSE!';
  }else{
+   memoryHideOnTouch=true;
    rule.textContent='MEMORISE THE TARGETS';
-   setTimeout(()=>{
-     document.querySelectorAll('.target').forEach(t=>t.classList.add('hiddenLabel'));
-     rule.textContent='MATCH FROM MEMORY';
-   },650);
  }
 
  const main=shapes[Math.floor(Math.random()*shapes.length)];
@@ -277,7 +280,7 @@ function startGame(){
  $('menu').classList.add('hide');
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
- score=0;mult=1;reverseSeen=false;paused=false;targetMap=['circle','square','triangle','star'];
+ score=0;mult=1;reverseSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];
  for(let i=0;i<4;i++) $('t'+i).textContent=targetMap[i].toUpperCase();
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
  newRound();
