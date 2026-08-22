@@ -152,7 +152,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   align-items:center;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 88px);
+  padding:calc(env(safe-area-inset-top) + 20px) 14px calc(env(safe-area-inset-bottom) + 32px);
   color:#fff;
 }
 .stateTutorial.hide{display:none!important}
@@ -173,8 +173,8 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 }
 .stateTutorial .title{
   align-self:center;
-  margin-top:4px;
-  padding:5px 18px;
+  margin-top:0;
+  padding:4px 18px;
   border:1px solid var(--cue);
   border-radius:999px;
   color:var(--cue);
@@ -186,8 +186,8 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   margin:0;
   text-align:center;
   color:var(--cue);
-  font-size:clamp(42px,14vw,68px);
-  line-height:.95;
+  font-size:clamp(40px,13vw,64px);
+  line-height:1;
   letter-spacing:.04em;
   text-shadow:0 0 14px color-mix(in srgb,var(--cue) 65%,transparent);
 }
@@ -307,23 +307,26 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   font-weight:900;
 }
 .stateTutorial .remember{
-  padding:10px 12px;
+  padding:11px 12px;
   font-size:13px;
   line-height:1.45;
+  margin-bottom:2px;
+  position:relative;
+  z-index:1;
 }
 .stateTutorial .continuePrompt{
-  position:sticky;
-  bottom:0;
+  position:relative;
   width:100%;
-  margin-top:4px;
-  padding:14px 8px;
-  background:linear-gradient(180deg,transparent,#030303 35%);
+  margin-top:2px;
+  padding:14px 8px 18px;
+  background:#030303;
   text-align:center;
   color:color-mix(in srgb,var(--cue) 70%,#fff);
   font-size:14px;
   font-weight:900;
   letter-spacing:.13em;
   animation:continuePulse 1.1s ease-in-out infinite;
+  border-top:1px solid color-mix(in srgb,var(--cue) 30%,#111);
 }
 @keyframes continuePulse{0%,100%{opacity:.55}50%{opacity:1}}
 
@@ -412,6 +415,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
   position:absolute;
   font-size:25px;
   z-index:7;
+  transform:translate(-2px,0);
 }
 .stateTutorial .animCheck{
   position:absolute;
@@ -431,17 +435,17 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 /* approved looping demo motions */
 .animReverse{animation:animReverse 3.0s ease-in-out infinite}
-@keyframes animReverse{0%,12%{left:36px}66%,84%{left:286px}100%{left:36px}}
+@keyframes animReverse{0%,12%{left:36px}66%,84%{left:calc(100% - 76px)}100%{left:36px}}
 .animDecoy{animation:animDecoy 3.0s ease-in-out infinite}
-@keyframes animDecoy{0%,12%{left:92px}66%,84%{left:286px}100%{left:92px}}
+@keyframes animDecoy{0%,12%{left:92px}66%,84%{left:calc(100% - 76px)}100%{left:92px}}
 .animColour{animation:animColour 3.0s ease-in-out infinite}
-@keyframes animColour{0%,12%{left:36px}66%,84%{left:286px}100%{left:36px}}
+@keyframes animColour{0%,12%{left:36px}66%,84%{left:calc(100% - 76px)}100%{left:36px}}
 .animFingerReverse{animation:animFingerReverse 3.0s ease-in-out infinite}
-@keyframes animFingerReverse{0%,12%{left:46px;top:84px}66%,84%{left:296px;top:84px}100%{left:46px;top:84px}}
+@keyframes animFingerReverse{0%,12%{left:46px;top:84px}66%,84%{left:calc(100% - 66px);top:84px}100%{left:46px;top:84px}}
 .animFingerDecoy{animation:animFingerDecoy 3.0s ease-in-out infinite}
-@keyframes animFingerDecoy{0%,12%{left:102px;top:84px}66%,84%{left:296px;top:84px}100%{left:102px;top:84px}}
+@keyframes animFingerDecoy{0%,12%{left:102px;top:84px}66%,84%{left:calc(100% - 66px);top:84px}100%{left:102px;top:84px}}
 .animFingerColour{animation:animFingerColour 3.0s ease-in-out infinite}
-@keyframes animFingerColour{0%,12%{left:46px;top:84px}66%,84%{left:296px;top:84px}100%{left:46px;top:84px}}
+@keyframes animFingerColour{0%,12%{left:46px;top:84px}66%,84%{left:calc(100% - 66px);top:84px}100%{left:46px;top:84px}}
 .animWaitFinger{animation:animWaitFinger 2.6s ease-in-out infinite}
 @keyframes animWaitFinger{0%,18%{left:74px;top:100px;opacity:1}50%{left:145px;top:88px;opacity:1}58%,100%{left:145px;top:88px;opacity:.18}}
 .animWaitCheck{animation:animWaitCheck 2.6s steps(1) infinite}
@@ -460,7 +464,7 @@ body.tutorialOpen{overflow:hidden!important}
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">3.4 • CLEAN TUTORIALS + ANIMATIONS</div>
+<div class="sub">3.6 • CENTRED ANIMATION LANDINGS</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -1020,6 +1024,8 @@ function waitForTutorialTap(id,after){
  const overlay=$(id);
  document.body.classList.add('tutorialOpen');
  overlay.classList.remove('hide');
+ overlay.scrollTop=0;
+ requestAnimationFrame(()=>{ overlay.scrollTop=0; });
  let ready=false;
  const continueNow=(e)=>{
    if(!ready)return;
