@@ -624,13 +624,36 @@ body.tutorialOpen{overflow:hidden!important}
   #waitIntro .animStage{height:184px!important}
 }
 
+
+/* ===== 4.1 ONE-PIXEL EAGLE-EYE LOCK ===== */
+/* BLUE top-left example: nudge the solid red star slightly LEFT. */
+#colourIntro .compare .panel:first-child .solidPiece{
+  left:calc(100% - 112px)!important;
+}
+
+/* BLUE animation: raise the star/finger path by exactly 1px while preserving X centres. */
+#colourIntro .blueMoveStar{top:41px!important}
+@keyframes blueMoveStar{
+  0%,12%{left:18px;top:41px}
+  36%,46%{left:96px;top:41px}
+  72%,88%{left:calc(100% - 76px);top:41px}
+  100%{left:18px;top:41px}
+}
+#colourIntro .blueMoveFinger{top:72px!important}
+@keyframes blueMoveFinger{
+  0%,12%{left:29px;top:72px}
+  36%,46%{left:107px;top:72px}
+  72%,88%{left:calc(100% - 65px);top:72px}
+  100%{left:29px;top:72px}
+}
+
 </style>
 </head>
 <body>
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">4.0 • FINAL TUTORIAL ALIGNMENT</div>
+<div class="sub">4.1 • ONE-PIXEL EAGLE-EYE LOCK</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
