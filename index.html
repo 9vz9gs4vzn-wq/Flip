@@ -1,1 +1,277 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>FLIP 0.1</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080808;color:#fff;font-family:Arial,sans-serif}#menu,#game,#over{position:fixed;inset:0}#menu,#over{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}#menu{background:radial-gradient(circle,#202020,#050505)}h1{font-size:22vw;margin:0;letter-spacing:.08em;text-shadow:4px 4px 0 #555}.sub{color:#aaa;letter-spacing:.25em;font-size:12px}button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;border-radius:12px;background:#151515;color:#fff;font-size:18px}#game{background:#0b0b0b}#hud{position:absolute;top:18px;left:0;width:100%;display:flex;justify-content:space-around;z-index:5;font-size:13px;letter-spacing:.12em}#instruction{position:absolute;top:70px;left:0;width:100%;text-align:center;color:#aaa;font-size:13px;z-index:5}#arena{position:absolute;left:7%;right:7%;top:22%;bottom:12%;border:1px solid #333;border-radius:18px}.target{position:absolute;width:27%;height:27%;border:2px dashed #444;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#777;font-size:10px}#t0{left:4%;top:5%}#t1{right:4%;top:5%}#t2{left:4%;bottom:5%}#t3{right:4%;bottom:5%}#piece{position:absolute;width:72px;height:72px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 25px #fff3;z-index:10;touch-action:none;user-select:none}#piece.circle{border-radius:50%}#piece.triangle{clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0}#msg{position:absolute;bottom:3%;width:100%;text-align:center;color:#777;font-size:11px}#flash{position:absolute;inset:0;pointer-events:none;opacity:0}#flash.good{background:#fff;opacity:.12}#flash.bad{background:#f00;opacity:.2}#over{background:#050505ee;z-index:20}#over h2{font-size:12vw;margin:0 0 10px}#scoreline{font-size:24px}.hide{display:none!important}</style></head><body><section id="menu"><h1>FLIP</h1><div class="sub">0.1 • FIRST PROTOTYPE</div><p>Drag each shape into its matching target.<br>Build your multiplier. Don't make a mistake.</p><button id="start">PLAY</button><div id="best"></div></section><section id="game" class="hide"><div id="hud"><span>SCORE <b id="score">0</b></span><span>×<b id="mult">1</b></span><span>BEST <b id="best2">0</b></span></div><div id="instruction">MATCH THE SHAPE</div><div id="arena"><div class="target" id="t0">CIRCLE</div><div class="target" id="t1">SQUARE</div><div class="target" id="t2">TRIANGLE</div><div class="target" id="t3">STAR</div><div id="piece"></div></div><div id="msg">DRAG THE PIECE</div><div id="flash"></div></section><section id="over" class="hide"><h2>GAME OVER</h2><div id="scoreline">SCORE 0</div><p id="result"></p><button id="again">PLAY AGAIN</button><button id="home">MENU</button></section><script>(()=>{const $=id=>document.getElementById(id),piece=$('piece'),arena=$('arena'),flash=$('flash');let score=0,mult=1,best=Number(localStorage.getItem('flipBest')||0),current=null,dragging=false,timer=null;const shapes=[{name:'circle',label:'●',target:'t0'},{name:'square',label:'■',target:'t1'},{name:'triangle',label:'▲',target:'t2'},{name:'star',label:'★',target:'t3'}];$('best').textContent='BEST: '+best;$('best2').textContent=best;function newShape(){current=shapes[Math.floor(Math.random()*shapes.length)];piece.className='';piece.classList.add(current.name);piece.textContent=current.label;const maxX=Math.max(20,arena.clientWidth-90),maxY=Math.max(20,arena.clientHeight-90);piece.style.left=(20+Math.random()*Math.max(1,maxX-40))+'px';piece.style.top=(20+Math.random()*Math.max(1,maxY-40))+'px';piece.style.transform='none';clearTimeout(timer);timer=setTimeout(()=>{if(!dragging)fail()},Math.max(850,2600-score*32));$('msg').textContent='DRAG THE PIECE'}function startGame(){$('menu').classList.add('hide');$('over').classList.add('hide');$('game').classList.remove('hide');score=0;mult=1;$('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;newShape()}function flashIt(type){flash.className='';void flash.offsetWidth;flash.className=type;setTimeout(()=>flash.className='',130)}function inTarget(){const pr=piece.getBoundingClientRect(),tr=$(current.target).getBoundingClientRect(),px=pr.left+pr.width/2,py=pr.top+pr.height/2;return px>tr.left&&px<tr.right&&py>tr.top&&py<tr.bottom}function success(){clearTimeout(timer);score++;if(score%5===0)mult++;$('score').textContent=score;$('mult').textContent=mult;if(score>best){best=score;localStorage.setItem('flipBest',best);$('best2').textContent=best}$('msg').textContent='GOOD!  MULTIPLIER ×'+mult;flashIt('good');setTimeout(newShape,120)}function fail(){clearTimeout(timer);flashIt('bad');$('game').classList.add('hide');$('over').classList.remove('hide');$('scoreline').textContent='SCORE '+score;$('result').textContent=score>=best?'NEW BEST!':'BEST: '+best}piece.addEventListener('pointerdown',e=>{dragging=true;piece.setPointerCapture(e.pointerId);piece.style.zIndex=30});piece.addEventListener('pointermove',e=>{if(!dragging)return;const a=arena.getBoundingClientRect();let x=e.clientX-a.left-piece.offsetWidth/2,y=e.clientY-a.top-piece.offsetHeight/2;x=Math.max(0,Math.min(arena.clientWidth-piece.offsetWidth,x));y=Math.max(0,Math.min(arena.clientHeight-piece.offsetHeight,y));piece.style.left=x+'px';piece.style.top=y+'px'});piece.addEventListener('pointerup',()=>{if(!dragging)return;dragging=false;piece.style.zIndex=10;if(inTarget())success();else fail()});$('start').onclick=startGame;$('again').onclick=startGame;$('home').onclick=()=>{clearTimeout(timer);$('over').classList.add('hide');$('game').classList.add('hide');$('menu').classList.remove('hide');$('best').textContent='BEST: '+best}})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>FLIP 0.2</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070707;color:#fff;font-family:Arial,sans-serif}
+#menu,#game,#over{position:fixed;inset:0}
+#menu,#over{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+#menu{background:radial-gradient(circle,#222,#050505)}
+h1{font-size:22vw;margin:0;letter-spacing:.08em;text-shadow:4px 4px 0 #555}
+.sub{color:#aaa;letter-spacing:.25em;font-size:12px}
+button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;border-radius:12px;background:#151515;color:#fff;font-size:18px}
+.hide{display:none!important}
+
+#game{background:#0a0a0a}
+#hud{position:absolute;top:18px;left:0;width:100%;display:flex;justify-content:space-around;z-index:8;font-size:12px;letter-spacing:.1em}
+#rule{position:absolute;top:60px;left:5%;right:5%;text-align:center;font-size:20px;font-weight:700;letter-spacing:.08em;z-index:8}
+#timerWrap{position:absolute;top:102px;left:8%;right:8%;height:5px;background:#222;border-radius:6px;overflow:hidden;z-index:8}
+#timerBar{height:100%;width:100%;background:#ddd;transform-origin:left center}
+#arena{position:absolute;left:5%;right:5%;top:19%;bottom:8%;border:1px solid #2c2c2c;border-radius:18px;overflow:hidden}
+.target{position:absolute;width:29%;height:26%;border:2px dashed #444;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#888;font-size:10px;transition:all .18s}
+#t0{left:3%;top:4%}#t1{right:3%;top:4%}#t2{left:3%;bottom:4%}#t3{right:3%;bottom:4%}
+.target.hiddenLabel{color:transparent}
+.target.flash{border-color:#aaa;transform:scale(1.04)}
+.piece{position:absolute;width:68px;height:68px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 22px #fff3;z-index:10;touch-action:none;user-select:none}
+.piece.circle{border-radius:50%}
+.piece.triangle{clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0}
+.piece.decoy{opacity:.38;filter:blur(.4px)}
+#msg{position:absolute;bottom:2%;width:100%;text-align:center;color:#777;font-size:11px}
+#flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:20}
+#flash.good{background:#fff;opacity:.10}
+#flash.bad{background:#f00;opacity:.22}
+#flash.glitch{background:#fff;opacity:.05;animation:g .15s steps(2) 4}
+@keyframes g{50%{transform:translateX(5px)}}
+#over{background:#050505ee;z-index:30}
+#over h2{font-size:12vw;margin:0 0 10px}
+#scoreline{font-size:24px}
+#tip{color:#999;max-width:320px;line-height:1.45}
+</style>
+</head>
+<body>
+
+<section id="menu">
+<h1>FLIP</h1>
+<div class="sub">0.2 • HARDER</div>
+<p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
+<button id="start">PLAY</button>
+<div id="best"></div>
+</section>
+
+<section id="game" class="hide">
+<div id="hud">
+<span>SCORE <b id="score">0</b></span>
+<span>×<b id="mult">1</b></span>
+<span>BEST <b id="best2">0</b></span>
+</div>
+<div id="rule">MATCH THE SHAPE</div>
+<div id="timerWrap"><div id="timerBar"></div></div>
+<div id="arena">
+<div class="target" id="t0">CIRCLE</div>
+<div class="target" id="t1">SQUARE</div>
+<div class="target" id="t2">TRIANGLE</div>
+<div class="target" id="t3">STAR</div>
+</div>
+<div id="msg">DRAG FAST</div>
+<div id="flash"></div>
+</section>
+
+<section id="over" class="hide">
+<h2>GAME OVER</h2>
+<div id="scoreline">SCORE 0</div>
+<p id="result"></p>
+<p id="tip"></p>
+<button id="again">PLAY AGAIN</button>
+<button id="home">MENU</button>
+</section>
+
+<script>
+(()=> {
+const $=id=>document.getElementById(id);
+const arena=$('arena'),flash=$('flash'),rule=$('rule'),timerBar=$('timerBar');
+let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
+let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match';
+let targetMap=['circle','square','triangle','star'];
+
+const shapes=[
+ {name:'circle',label:'●'},
+ {name:'square',label:'■'},
+ {name:'triangle',label:'▲'},
+ {name:'star',label:'★'}
+];
+
+$('best').textContent='BEST: '+best;
+$('best2').textContent=best;
+
+function targetIdFor(shape){
+ const idx=targetMap.indexOf(shape);
+ return 't'+idx;
+}
+function clearPieces(){
+ active.forEach(o=>o.el.remove());
+ active=[];
+}
+function shuffleTargets(){
+ targetMap.sort(()=>Math.random()-.5);
+ for(let i=0;i<4;i++){
+   const t=$('t'+i);
+   t.textContent=targetMap[i].toUpperCase();
+   t.classList.add('flash');
+   setTimeout(()=>t.classList.remove('flash'),180);
+ }
+}
+function chooseMode(){
+ if(score<6) return 'match';
+ const r=Math.random();
+ if(score>=18 && r<.22) return 'reverse';
+ if(score>=10 && r<.42) return 'memory';
+ return 'match';
+}
+function randomPos(){
+ return {
+   x:20+Math.random()*Math.max(10,arena.clientWidth-100),
+   y:120+Math.random()*Math.max(10,arena.clientHeight-230)
+ };
+}
+function makePiece(shape,decoy=false){
+ const el=document.createElement('div');
+ el.className='piece '+shape.name+(decoy?' decoy':'');
+ el.textContent=shape.label;
+ const pos=randomPos();
+ el.style.left=pos.x+'px'; el.style.top=pos.y+'px';
+ arena.appendChild(el);
+
+ const obj={el,shape:shape.name,decoy,dragging:false};
+ active.push(obj);
+
+ el.addEventListener('pointerdown',e=>{
+   if(decoy){ fail('You grabbed a decoy.'); return; }
+   obj.dragging=true;
+   el.setPointerCapture(e.pointerId);
+   el.style.zIndex=25;
+ });
+ el.addEventListener('pointermove',e=>{
+   if(!obj.dragging)return;
+   const a=arena.getBoundingClientRect();
+   let x=e.clientX-a.left-el.offsetWidth/2;
+   let y=e.clientY-a.top-el.offsetHeight/2;
+   x=Math.max(0,Math.min(arena.clientWidth-el.offsetWidth,x));
+   y=Math.max(0,Math.min(arena.clientHeight-el.offsetHeight,y));
+   el.style.left=x+'px';el.style.top=y+'px';
+ });
+ el.addEventListener('pointerup',()=>{
+   if(!obj.dragging)return;
+   obj.dragging=false;el.style.zIndex=10;
+   checkDrop(obj);
+ });
+}
+function overlapTarget(el,target){
+ const a=el.getBoundingClientRect(),b=target.getBoundingClientRect();
+ const x=a.left+a.width/2,y=a.top+a.height/2;
+ return x>b.left&&x<b.right&&y>b.top&&y<b.bottom;
+}
+function checkDrop(obj){
+ const correctId=targetIdFor(obj.shape);
+ let chosen=null;
+ for(let i=0;i<4;i++) if(overlapTarget(obj.el,$('t'+i))) chosen='t'+i;
+
+ if(!chosen){fail('Missed the target.');return;}
+
+ if(mode==='reverse'){
+   if(chosen===correctId){fail('Rule was REVERSE.');return;}
+   success();
+ }else{
+   if(chosen!==correctId){fail('Wrong target.');return;}
+   success();
+ }
+}
+function updateDifficulty(){
+ roundLimit=Math.max(650,2200-score*45);
+ mult=1+Math.floor(score/5);
+ $('mult').textContent=mult;
+}
+function success(){
+ clearTimeout(timer);
+ score++;
+ $('score').textContent=score;
+ if(score>best){best=score;localStorage.setItem('flipBestHard',best);$('best2').textContent=best}
+ flashIt('good');
+ if(score===6||score===12||score===20) shuffleTargets();
+ setTimeout(newRound,100);
+}
+function flashIt(type){
+ flash.className='';
+ void flash.offsetWidth;
+ flash.className=type;
+ setTimeout(()=>flash.className='',130);
+}
+function fail(reason){
+ clearTimeout(timer);
+ flashIt('bad');
+ clearPieces();
+ $('game').classList.add('hide');
+ $('over').classList.remove('hide');
+ $('scoreline').textContent='SCORE '+score;
+ $('result').textContent=score>=best?'NEW BEST!':'BEST: '+best;
+ $('tip').textContent=reason||'Too slow.';
+}
+function newRound(){
+ roundToken++;
+ clearTimeout(timer);
+ clearPieces();
+ updateDifficulty();
+ mode=chooseMode();
+
+ if(score>=14 && Math.random()<.34) shuffleTargets();
+
+ document.querySelectorAll('.target').forEach(t=>t.classList.remove('hiddenLabel'));
+ if(mode==='match'){
+   rule.textContent='MATCH THE SHAPE';
+ }else if(mode==='reverse'){
+   rule.textContent='DO NOT MATCH THE SHAPE';
+ }else{
+   rule.textContent='MEMORISE THE TARGETS';
+   setTimeout(()=>{
+     document.querySelectorAll('.target').forEach(t=>t.classList.add('hiddenLabel'));
+     rule.textContent='MATCH FROM MEMORY';
+   },650);
+ }
+
+ const main=shapes[Math.floor(Math.random()*shapes.length)];
+ makePiece(main,false);
+
+ if(score>=8 && Math.random()<.35){
+   let d=shapes[Math.floor(Math.random()*shapes.length)];
+   makePiece(d,true);
+ }
+ if(score>=16 && Math.random()<.25){
+   let d=shapes[Math.floor(Math.random()*shapes.length)];
+   makePiece(d,true);
+ }
+
+ roundStart=performance.now();
+ const tok=roundToken;
+ function animateTimer(){
+   if(tok!==roundToken)return;
+   const p=Math.max(0,1-(performance.now()-roundStart)/roundLimit);
+   timerBar.style.transform='scaleX('+p+')';
+   if(p>0) requestAnimationFrame(animateTimer);
+ }
+ requestAnimationFrame(animateTimer);
+
+ timer=setTimeout(()=>fail('Too slow.'),roundLimit);
+ if(score>=10 && Math.random()<.18) flashIt('glitch');
+}
+function startGame(){
+ $('menu').classList.add('hide');
+ $('over').classList.add('hide');
+ $('game').classList.remove('hide');
+ score=0;mult=1;targetMap=['circle','square','triangle','star'];
+ for(let i=0;i<4;i++) $('t'+i).textContent=targetMap[i].toUpperCase();
+ $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
+ newRound();
+}
+$('start').onclick=startGame;
+$('again').onclick=startGame;
+$('home').onclick=()=>{
+ clearTimeout(timer);clearPieces();
+ $('over').classList.add('hide');$('game').classList.add('hide');$('menu').classList.remove('hide');
+ $('best').textContent='BEST: '+best;
+};
+})();
+</script>
+</body>
+</html>
