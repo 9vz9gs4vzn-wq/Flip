@@ -45,7 +45,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">0.2 • HARDER</div>
+<div class="sub">0.2 • LONGER TIMER</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -179,7 +179,7 @@ function checkDrop(obj){
  }
 }
 function updateDifficulty(){
- roundLimit=Math.max(650,2200-score*45);
+ roundLimit=Math.max(650,2600-score*40);
  mult=1+Math.floor(score/5);
  $('mult').textContent=mult;
 }
