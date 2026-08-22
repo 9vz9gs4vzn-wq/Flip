@@ -38,6 +38,32 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 .piece.square{font-size:31px}
 .piece.triangle{font-size:34px}
 .piece.star{font-size:32px}
+
+.piece.red{color:#ff4d5a}
+.piece.blue{color:#4da6ff}
+.piece.green{color:#5ee083}
+.piece.yellow{color:#ffd84d}
+
+.target[data-colour="red"] svg *{stroke:#ff4d5a}
+.target[data-colour="blue"] svg *{stroke:#4da6ff}
+.target[data-colour="green"] svg *{stroke:#5ee083}
+.target[data-colour="yellow"] svg *{stroke:#ffd84d}
+
+#game.colourMode{background:#071018}
+#game.colourMode #arena{border-color:#28506e;box-shadow:inset 0 0 42px #135b8a33}
+#game.colourMode #rule{color:#69c7ff;text-shadow:0 0 14px #008cff66}
+#game.colourMode #timerBar{background:#69c7ff}
+
+
+#game.colourMode .target svg *{stroke-width:4}
+#game.colourMode .target{animation:colourPulse .55s ease-out 1}
+@keyframes colourPulse{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+#game.colourMode .piece{filter:drop-shadow(0 0 5px currentColor)}
+#colourIntro{position:absolute;inset:0;z-index:26;background:#00131ef5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
+#colourIntro h3{font-size:11vw;margin:0 0 16px;color:#69c7ff;letter-spacing:.08em}
+#colourIntro p{font-size:18px;line-height:1.45;margin:4px 0}
+#colourIntro .example{font-size:22px;line-height:1.6;margin-top:12px}
+#colourIntro.hide{display:none!important}
 #msg{position:absolute;bottom:2%;width:100%;text-align:center;color:#777;font-size:11px}
 #flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:20}
 #flash.good{background:#fff;opacity:.10}
@@ -62,7 +88,7 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 
 <section id="menu">
 <h1>FLIP</h1>
-<div class="sub">1.4 • SIZE CHAOS</div>
+<div class="sub">1.6 • COLOUR REFINED</div>
 <p>Rules change. Targets move. Decoys appear.<br>Stay sharp.</p>
 <button id="start">PLAY</button>
 <div id="best"></div>
@@ -77,14 +103,15 @@ button{width:min(86vw,340px);padding:17px;margin:14px 0;border:1px solid #777;bo
 <div id="rule">MATCH THE SHAPE</div>
 <div id="timerWrap"><div id="timerBar"></div></div>
 <div id="arena">
-<div class="target" id="t0" data-shape="circle"><svg viewBox="0 0 82 82" aria-hidden="true"><circle cx="41" cy="41" r="34"/></svg></div>
-<div class="target" id="t1" data-shape="square"><svg viewBox="0 0 82 82" aria-hidden="true"><rect x="9" y="9" width="64" height="64" rx="5"/></svg></div>
-<div class="target" id="t2" data-shape="triangle"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 74,72 8,72"/></svg></div>
-<div class="target" id="t3" data-shape="star"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg></div>
+<div class="target" id="t0" data-shape="circle" data-colour="red"><svg viewBox="0 0 82 82" aria-hidden="true"><circle cx="41" cy="41" r="34"/></svg></div>
+<div class="target" id="t1" data-shape="square" data-colour="blue"><svg viewBox="0 0 82 82" aria-hidden="true"><rect x="9" y="9" width="64" height="64" rx="5"/></svg></div>
+<div class="target" id="t2" data-shape="triangle" data-colour="green"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 74,72 8,72"/></svg></div>
+<div class="target" id="t3" data-shape="star" data-colour="yellow"><svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg></div>
 </div>
 <div id="msg">DRAG FAST</div>
 <div id="flash"></div>
 <div id="reverseIntro" class="hide"><h3>REVERSE!</h3><p>Do <b>NOT</b> put the shape in its matching target.</p><div class="example">● → ✕ CIRCLE<br>● → ✓ ANY OTHER TARGET</div></div>
+<div id="colourIntro" class="hide"><h3>COLOUR!</h3><p>Ignore which shape it is.<br>Drag it to the target with the <b>SAME COLOUR</b>.</p><div class="example">RED ● → ✓ RED TARGET<br>Even if the target is a different shape.</div></div>
 </section>
 
 <section id="over" class="hide">
@@ -103,7 +130,8 @@ const arena=$('arena'),flash=$('flash'),rule=$('rule'),timerBar=$('timerBar');
 let score=0,mult=1,best=Number(localStorage.getItem('flipBestHard')||0);
 let roundToken=0,active=[],timer=null,roundStart=0,roundLimit=2200,mode='match',mainSpawn=null;
 let targetMap=['circle','square','triangle','star'];
-let reverseSeen=false,paused=false,memoryHideOnTouch=false;
+let colourMap=['red','blue','green','yellow'];
+let reverseSeen=false,colourSeen=false,paused=false,memoryHideOnTouch=false;
 
 const shapes=[
  {name:'circle',label:'●'},
@@ -116,8 +144,9 @@ $('best').textContent='BEST: '+best;
 $('best2').textContent=best;
 
 function symbolFor(shape){return shape==='circle'?'●':shape==='square'?'■':shape==='triangle'?'▲':'★';}
-function renderTarget(t,shape){
+function renderTarget(t,shape,colour){
  t.dataset.shape=shape;
+ if(colour)t.dataset.colour=colour;
  if(shape==='circle'){
    t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><circle cx="41" cy="41" r="34"/></svg>';
  }else if(shape==='square'){
@@ -127,6 +156,10 @@ function renderTarget(t,shape){
  }else{
    t.innerHTML='<svg viewBox="0 0 82 82" aria-hidden="true"><polygon points="41,7 50,30 75,31 55,47 62,72 41,58 20,72 27,47 7,31 32,30"/></svg>';
  }
+}
+function targetIdForColour(colour){
+ const idx=colourMap.indexOf(colour);
+ return 't'+idx;
 }
 function targetIdFor(shape){
  const idx=targetMap.indexOf(shape);
@@ -140,7 +173,7 @@ function shuffleTargets(){
  targetMap.sort(()=>Math.random()-.5);
  for(let i=0;i<4;i++){
    const t=$('t'+i);
-   renderTarget(t,targetMap[i]);
+   renderTarget(t,targetMap[i],colourMap[i]);
    t.classList.add('flash');
    setTimeout(()=>t.classList.remove('flash'),180);
  }
@@ -148,8 +181,10 @@ function shuffleTargets(){
 function chooseMode(){
  if(score<4) return 'match';
  const r=Math.random();
- if(score>=14 && r<.24) return 'reverse';
- if(score>=7 && r<.44) return 'memory';
+ const colourChance = score<9 ? 0 : Math.min(.34,.16+(score-9)*.009);
+ if(score>=14 && r<.18) return 'reverse';
+ if(score>=9 && r<.18+colourChance) return 'colour';
+ if(score>=7 && r<.18+colourChance+.20) return 'memory';
  return 'match';
 }
 function randomPos(avoidMain=false){
@@ -199,9 +234,11 @@ function sizeScale(decoy){
   }
   return Math.max(.62,Math.min(1.48,scale));
 }
-function makePiece(shape,decoy=false){
+function makePiece(shape,decoy=false,forcedColour=null){
  const el=document.createElement('div');
- el.className='piece '+shape.name+(decoy?' decoy':'');
+ const pieceColour=forcedColour||colourMap[Math.floor(Math.random()*colourMap.length)];
+ el.className='piece '+shape.name+' '+pieceColour+(decoy?' decoy':'');
+ el.dataset.colour=pieceColour;
  el.textContent=shape.label;
  if(decoy){
    const decoyOpacity=Math.min(.92,.30+score*.0125);
@@ -217,7 +254,7 @@ function makePiece(shape,decoy=false){
  arena.appendChild(el);
 
  if(!decoy) mainSpawn={x:pos.x,y:pos.y};
- const obj={el,shape:shape.name,decoy,dragging:false,scale:1};
+ const obj={el,shape:shape.name,colour:pieceColour,decoy,dragging:false,scale:1};
  active.push(obj);
 
  el.addEventListener('pointerdown',e=>{
@@ -261,6 +298,10 @@ function checkDrop(obj){
 
  if(mode==='reverse'){
    if(chosen===correctId){fail('Rule was REVERSE.');return;}
+   success();
+ }else if(mode==='colour'){
+   const colourId=targetIdForColour(obj.colour);
+   if(chosen!==colourId){fail('Wrong colour target.');return;}
    success();
  }else{
    if(chosen!==correctId){fail('Wrong target.');return;}
@@ -313,6 +354,7 @@ function newRound(){
  memoryHideOnTouch=false;
  mode=chooseMode();
  $('game').classList.toggle('reverseMode',mode==='reverse');
+ $('game').classList.toggle('colourMode',mode==='colour');
 
  if(score>=11 && Math.random()<.38) shuffleTargets();
 
@@ -321,13 +363,24 @@ function newRound(){
    rule.textContent='MATCH THE SHAPE';
  }else if(mode==='reverse'){
    rule.textContent=reverseSeen?'REVERSE!':'NEW RULE: REVERSE!';
+ }else if(mode==='colour'){
+   rule.textContent=colourSeen?'MATCH COLOUR':'NEW RULE: MATCH COLOUR';
  }else{
    memoryHideOnTouch=true;
    rule.textContent='MEMORISE THE TARGETS';
  }
 
  const main=shapes[Math.floor(Math.random()*shapes.length)];
- makePiece(main,false);
+ let mainColour=null;
+ if(mode==='colour'){
+   const shapeTarget=targetIdFor(main.name);
+   let options=colourMap.slice();
+   if(Math.random()<.82){
+     options=options.filter(c=>targetIdForColour(c)!==shapeTarget);
+   }
+   mainColour=options[Math.floor(Math.random()*options.length)];
+ }
+ makePiece(main,false,mainColour);
 
  // Decoys become more frequent and more numerous as the score climbs.
  // ~25% chance at score 8, ~55% at 20, ~80% at 30+, plus extra decoys later.
@@ -369,15 +422,19 @@ function newRound(){
    reverseSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
    $('reverseIntro').classList.remove('hide');
    setTimeout(()=>{$('reverseIntro').classList.add('hide');beginTimedRound()},2000);
- } else beginTimedRound();
+ }else if(mode==='colour'&&!colourSeen){
+   colourSeen=true; paused=true; timerBar.style.transform='scaleX(1)';
+   $('colourIntro').classList.remove('hide');
+   setTimeout(()=>{$('colourIntro').classList.add('hide');beginTimedRound()},2000);
+ }else beginTimedRound();
  if(score>=10 && Math.random()<.18) flashIt('glitch');
 }
 function startGame(){
  $('menu').classList.add('hide');
  $('over').classList.add('hide');
  $('game').classList.remove('hide');
- score=0;mult=1;reverseSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];
- for(let i=0;i<4;i++) renderTarget($('t'+i),targetMap[i]);
+ score=0;mult=1;reverseSeen=false;colourSeen=false;paused=false;memoryHideOnTouch=false;targetMap=['circle','square','triangle','star'];colourMap=['red','blue','green','yellow'];
+ for(let i=0;i<4;i++) renderTarget($('t'+i),targetMap[i],colourMap[i]);
  $('score').textContent=0;$('mult').textContent=1;$('best2').textContent=best;
  newRound();
 }
